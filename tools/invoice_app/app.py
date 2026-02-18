@@ -5,7 +5,7 @@ import os
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse
 from dotenv import load_dotenv
 import requests
 
@@ -28,13 +28,14 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS middleware - allow frontend to access API
+# CORS middleware
+allowed_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:8000,http://127.0.0.1:8000").split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify exact origins
+    allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 
 # Include API routes
@@ -52,8 +53,8 @@ NODE_SERVICE_URL = f"http://{NODE_SERVICE_HOST}:{NODE_SERVICE_PORT}"
 
 @app.get("/")
 async def root():
-    """Root endpoint - redirect to frontend"""
-    return FileResponse("frontend/index.html")
+    """Root endpoint - redirect to dashboard"""
+    return RedirectResponse(url="/dashboard")
 
 @app.get("/health", response_model=HealthResponse)
 async def health_check():
@@ -104,31 +105,6 @@ if os.path.exists(frontend_path):
     templates_path = os.path.join(frontend_path, "templates")
     if os.path.exists(templates_path):
         app.mount("/templates", StaticFiles(directory=templates_path), name="templates")
-
-# Serve frontend HTML pages
-@app.get("/designer")
-async def serve_designer():
-    """Serve the template designer page"""
-    file_path = os.path.join(frontend_path, "designer.html")
-    if os.path.exists(file_path):
-        return FileResponse(file_path)
-    raise HTTPException(status_code=404, detail="Designer page not found")
-
-@app.get("/generator")
-async def serve_generator():
-    """Serve the PDF generator page"""
-    file_path = os.path.join(frontend_path, "generator.html")
-    if os.path.exists(file_path):
-        return FileResponse(file_path)
-    raise HTTPException(status_code=404, detail="Generator page not found")
-
-@app.get("/library")
-async def serve_library():
-    """Serve the template library page"""
-    file_path = os.path.join(frontend_path, "library.html")
-    if os.path.exists(file_path):
-        return FileResponse(file_path)
-    raise HTTPException(status_code=404, detail="Library page not found")
 
 @app.get("/login")
 async def serve_login():

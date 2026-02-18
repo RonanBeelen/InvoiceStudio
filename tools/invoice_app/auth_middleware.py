@@ -76,11 +76,9 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
     except jwt.InvalidTokenError as e:
-        print(f"[Auth] Invalid token: {e}")
-        print(f"[Auth] Token (first 50 chars): {token[:50]}...")
-        print(f"[Auth] Algorithm: {_jwt_algorithms}")
+        print(f"[Auth] Invalid token error")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Ongeldig token: {str(e)}",
+            detail="Ongeldig token",
             headers={"WWW-Authenticate": "Bearer"},
         )
