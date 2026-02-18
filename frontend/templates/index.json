@@ -1,0 +1,26 @@
+[
+  {
+    "id": "factuur-basis",
+    "name": "Basis Factuur",
+    "description": "Clean en minimalistisch ontwerp met eenvoudige lijnen",
+    "file": "factuur-basis.json",
+    "icon": "file-text",
+    "style": "Zwart-wit, eenvoudig"
+  },
+  {
+    "id": "factuur-professioneel",
+    "name": "Professionele Factuur",
+    "description": "Gestructureerd met logo-placeholder en kleuraccenten",
+    "file": "factuur-professioneel.json",
+    "icon": "briefcase",
+    "style": "Met logo en kleur"
+  },
+  {
+    "id": "factuur-modern",
+    "name": "Moderne Factuur",
+    "description": "Strak design met gekleurde sidebar en modern layout",
+    "file": "factuur-modern.json",
+    "icon": "layout",
+    "style": "Sidebar-layout, modern"
+  }
+]

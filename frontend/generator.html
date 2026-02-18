@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Studio - PDF Generator</title>
+    <link rel="icon" type="image/png" href="/PNG/Icon Invoice Studio.png">
+    <link rel="stylesheet" href="/css/styles.css">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="/js/icons.js"></script>
+    <style>
+        /* Generator-specific styles */
+        body {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .container {
+            flex: 1;
+            overflow: auto;
+        }
+
+        .result-icon {
+            font-size: 5em;
+            margin-bottom: var(--space-lg);
+        }
+
+        .new-pdf-btn {
+            margin-left: var(--space-sm);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <a href="/library" class="back-btn">← Terug</a>
+            <h1 class="header-title"><i data-lucide="file-text"></i> PDF Genereren</h1>
+        </div>
+        <div class="header-right">
+            <select id="template-select" class="template-select">
+                <option value="">Selecteer een template...</option>
+            </select>
+            <button id="generate-btn" class="btn btn-primary" disabled><i data-lucide="rocket"></i> Genereer PDF</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="loading" class="loading" style="display: none;">
+            <div class="loader-pulse">
+                <div class="loader-pulse__ring"></div>
+                <div class="loader-pulse__ring"></div>
+                <div class="loader-pulse__ring"></div>
+                <div class="loader-pulse__dot"></div>
+            </div>
+            <p id="loading-text">Laden...</p>
+        </div>
+
+        <div id="empty-state" class="empty-state">
+            <div class="icon"><i data-lucide="clipboard" style="width: 64px; height: 64px;"></i></div>
+            <h2>Selecteer een template</h2>
+            <p>Kies een template uit de dropdown om te beginnen met het invullen van gegevens.</p>
+        </div>
+
+        <div id="form-container" class="form-container" style="display: none;">
+            <h2 id="form-title" style="margin-bottom: var(--space-lg);">Vul de gegevens in</h2>
+            <form id="pdf-form">
+                <!-- Form fields will be generated here -->
+            </form>
+        </div>
+
+        <div id="result-container" class="result-card" style="display: none;">
+            <div class="result-icon"><i data-lucide="check-circle" style="width: 64px; height: 64px; color: var(--color-success);"></i></div>
+            <h2>PDF Succesvol Gegenereerd!</h2>
+            <p>Je PDF is klaar en kan worden gedownload.</p>
+            <a id="download-link" href="#" class="btn btn-success" target="_blank"><i data-lucide="download"></i> Download PDF</a>
+            <button id="new-pdf-btn" class="btn btn-primary new-pdf-btn"><i data-lucide="plus-circle"></i> Nieuwe PDF</button>
+        </div>
+    </div>
+
+    <script type="module">
+        let templates = [];
+        let currentTemplate = null;
+
+        const elements = {
+            loading: document.getElementById('loading'),
+            loadingText: document.getElementById('loading-text'),
+            emptyState: document.getElementById('empty-state'),
+            formContainer: document.getElementById('form-container'),
+            resultContainer: document.getElementById('result-container'),
+            templateSelect: document.getElementById('template-select'),
+            generateBtn: document.getElementById('generate-btn'),
+            pdfForm: document.getElementById('pdf-form'),
+            formTitle: document.getElementById('form-title'),
+            downloadLink: document.getElementById('download-link'),
+            newPdfBtn: document.getElementById('new-pdf-btn')
+        };
+
+        // Notification helper
+        function notify(message, type = 'info') {
+            const existing = document.querySelectorAll('.notification');
+            existing.forEach(n => n.remove());
+
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => notification.remove(), 3000);
+        }
+
+        // API helpers
+        const api = {
+            async request(endpoint, options = {}) {
+                const response = await fetch(endpoint, {
+                    headers: { 'Content-Type': 'application/json' },
+                    ...options
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.detail || 'Request failed');
+                return data;
+            },
+            getTemplates() { return this.request('/api/templates'); },
+            generatePdf(templateId, inputData) {
+                return this.request('/api/generate-pdf', {
+                    method: 'POST',
+                    body: JSON.stringify({ template_id: templateId, input_data: inputData })
+                });
+            }
+        };
+
+        // Load templates
+        async function loadTemplates() {
+            try {
+                elements.loading.style.display = 'block';
+                elements.loadingText.textContent = 'Templates laden...';
+
+                templates = await api.getTemplates();
+
+                elements.templateSelect.innerHTML = '<option value="">Selecteer een template...</option>';
+                templates.forEach(template => {
+                    const option = document.createElement('option');
+                    option.value = template.id;
+                    option.textContent = template.name;
+                    elements.templateSelect.appendChild(option);
+                });
+
+                elements.loading.style.display = 'none';
+
+                if (templates.length === 0) {
+                    notify('Geen templates gevonden. Maak eerst een template aan.', 'info');
+                }
+
+            } catch (error) {
+                console.error('Failed to load templates:', error);
+                notify('Fout bij laden van templates: ' + error.message, 'error');
+                elements.loading.style.display = 'none';
+            }
+        }
+
+        // Extract field names from template
+        function extractFields(template) {
+            try {
+                const schemas = template.template_json?.schemas;
+                if (!schemas || !schemas[0]) return [];
+
+                // Get all fields from first page schema
+                return schemas[0].filter(field => field.name && field.name !== '');
+            } catch (error) {
+                console.error('Error extracting fields:', error);
+                return [];
+            }
+        }
+
+        // Generate form fields
+        function generateForm(template) {
+            const fields = extractFields(template);
+
+            if (fields.length === 0) {
+                elements.pdfForm.innerHTML = '<p style="color: #999;">Deze template heeft geen invulbare velden.</p>';
+                return;
+            }
+
+            elements.pdfForm.innerHTML = fields.map(field => `
+                <div class="form-group">
+                    <label class="form-label" for="field-${field.name}">${field.name}</label>
+                    <input
+                        type="text"
+                        class="form-input"
+                        id="field-${field.name}"
+                        name="${field.name}"
+                        placeholder="Vul ${field.name} in..."
+                        required
+                    />
+                </div>
+            `).join('');
+        }
+
+        // Template selection handler
+        elements.templateSelect.addEventListener('change', (e) => {
+            const templateId = e.target.value;
+
+            if (!templateId) {
+                elements.emptyState.style.display = 'block';
+                elements.formContainer.style.display = 'none';
+                elements.resultContainer.style.display = 'none';
+                elements.generateBtn.disabled = true;
+                currentTemplate = null;
+                return;
+            }
+
+            currentTemplate = templates.find(t => t.id === templateId);
+
+            if (currentTemplate) {
+                elements.emptyState.style.display = 'none';
+                elements.formContainer.style.display = 'block';
+                elements.resultContainer.style.display = 'none';
+                elements.formTitle.textContent = `Vul de gegevens in voor: ${currentTemplate.name}`;
+                elements.generateBtn.disabled = false;
+
+                generateForm(currentTemplate);
+            }
+        });
+
+        // Generate PDF handler
+        elements.generateBtn.addEventListener('click', async () => {
+            if (!currentTemplate) return;
+
+            try {
+                elements.generateBtn.disabled = true;
+                elements.generateBtn.innerHTML = '<i data-lucide="loader-2" class="lucide-spin"></i> Genereren...';
+                lucide.createIcons();
+
+                // Collect form data
+                const formData = new FormData(elements.pdfForm);
+                const inputData = {};
+                formData.forEach((value, key) => {
+                    inputData[key] = value;
+                });
+
+                console.log('Generating PDF with data:', inputData);
+
+                // Call API
+                const result = await api.generatePdf(currentTemplate.id, inputData);
+
+                console.log('PDF generated:', result);
+
+                // Show result
+                elements.formContainer.style.display = 'none';
+                elements.resultContainer.style.display = 'block';
+                elements.downloadLink.href = result.pdf_url;
+
+                notify('PDF succesvol gegenereerd!', 'success');
+
+            } catch (error) {
+                console.error('Failed to generate PDF:', error);
+                notify('Fout bij genereren PDF: ' + error.message, 'error');
+            } finally {
+                elements.generateBtn.disabled = false;
+                elements.generateBtn.innerHTML = '<i data-lucide="rocket"></i> Genereer PDF';
+                lucide.createIcons();
+            }
+        });
+
+        // New PDF handler
+        elements.newPdfBtn.addEventListener('click', () => {
+            elements.resultContainer.style.display = 'none';
+            elements.formContainer.style.display = 'block';
+            elements.pdfForm.reset();
+        });
+
+        // Initialize
+        await loadTemplates();
+    </script>
+</body>
+</html>

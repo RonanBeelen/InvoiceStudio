@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Studio - Dashboard</title>
+    <link rel="icon" type="image/png" href="/PNG/Icon Invoice Studio.png">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <script defer src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="modulepreload" href="/js/pages/library.js">
+    <link rel="modulepreload" href="/js/pages/documents.js">
+    <link rel="modulepreload" href="/js/pages/customers.js">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="/PNG/Logo Invoice Studio.png" alt="Invoice Studio" class="sidebar-logo">
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#/home" class="menu-item" data-route="home">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#/new-document" class="menu-item" data-route="new-document">
+                    <i data-lucide="file-plus"></i>
+                    <span>New Document</span>
+                </a>
+                <a href="#/documents" class="menu-item" data-route="documents">
+                    <i data-lucide="files"></i>
+                    <span>Documents</span>
+                </a>
+                <a href="#/templates" class="menu-item" data-route="templates">
+                    <i data-lucide="layout-template"></i>
+                    <span>Templates</span>
+                </a>
+                <a href="#/customers" class="menu-item" data-route="customers">
+                    <i data-lucide="users"></i>
+                    <span>Customers</span>
+                </a>
+                <a href="#/settings" class="menu-item" data-route="settings">
+                    <i data-lucide="settings"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-info" id="user-info" style="display: none;">
+                    <div class="user-avatar">
+                        <i data-lucide="user"></i>
+                    </div>
+                    <div class="user-details">
+                        <span class="user-email" id="user-email"></span>
+                    </div>
+                    <button class="logout-btn" id="logout-btn" title="Uitloggen">
+                        <i data-lucide="log-out"></i>
+                    </button>
+                </div>
+                <div class="status-indicator" id="status">
+                    <i data-lucide="loader-2" class="animate-spin"></i>
+                    <span>Checking...</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Content Area -->
+        <main class="content-area" id="content-area">
+            <div class="loading">
+                <div class="loader-pulse">
+                    <div class="loader-pulse__ring"></div>
+                    <div class="loader-pulse__ring"></div>
+                    <div class="loader-pulse__ring"></div>
+                    <div class="loader-pulse__dot"></div>
+                </div>
+                <p>Laden...</p>
+            </div>
+        </main>
+    </div>
+
+    <script defer src="/js/events.js"></script>
+    <script defer src="/js/auth.js?v=3"></script>
+    <script defer src="/js/api.js?v=3"></script>
+    <script defer src="/js/icons.js"></script>
+    <script defer src="/js/router.js"></script>
+    <script defer src="/js/dashboard.js"></script>
+</body>
+</html>

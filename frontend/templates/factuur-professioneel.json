@@ -1,0 +1,505 @@
+{
+  "basePdf": { "width": 210, "height": 297, "padding": [0, 0, 0, 0] },
+  "schemas": [
+    {
+      "header_achtergrond": {
+        "type": "rectangle",
+        "position": { "x": 0, "y": 0 },
+        "width": 210,
+        "height": 45,
+        "color": "#003D33",
+        "borderWidth": 0
+      },
+      "logo": {
+        "type": "image",
+        "content": "",
+        "position": { "x": 15, "y": 8 },
+        "width": 30,
+        "height": 30
+      },
+      "bedrijfsnaam": {
+        "type": "text",
+        "content": "Uw Bedrijfsnaam",
+        "position": { "x": 50, "y": 10 },
+        "width": 100,
+        "height": 12,
+        "fontSize": 22,
+        "fontColor": "#FFFFFF",
+        "alignment": "left",
+        "fontWeight": "bold"
+      },
+      "bedrijfs_tagline": {
+        "type": "text",
+        "content": "Professionele dienstverlening",
+        "position": { "x": 50, "y": 24 },
+        "width": 100,
+        "height": 7,
+        "fontSize": 10,
+        "fontColor": "#4DDFB5",
+        "alignment": "left"
+      },
+      "bedrijfsadres_header": {
+        "type": "text",
+        "content": "info@bedrijf.nl  |  06-12345678",
+        "position": { "x": 50, "y": 32 },
+        "width": 100,
+        "height": 7,
+        "fontSize": 8,
+        "fontColor": "#FFFFFF",
+        "alignment": "left"
+      },
+      "factuur_badge": {
+        "type": "rectangle",
+        "position": { "x": 150, "y": 10 },
+        "width": 48,
+        "height": 25,
+        "color": "#008F7A",
+        "borderWidth": 0,
+        "borderRadius": 4
+      },
+      "factuur_titel": {
+        "type": "text",
+        "content": "FACTUUR",
+        "position": { "x": 150, "y": 16 },
+        "width": 48,
+        "height": 12,
+        "fontSize": 16,
+        "fontColor": "#FFFFFF",
+        "alignment": "center",
+        "fontWeight": "bold"
+      },
+      "accent_lijn": {
+        "type": "rectangle",
+        "position": { "x": 0, "y": 45 },
+        "width": 210,
+        "height": 3,
+        "color": "#4DDFB5",
+        "borderWidth": 0
+      },
+      "factuurnummer_label": {
+        "type": "text",
+        "content": "Factuurnummer",
+        "position": { "x": 130, "y": 55 },
+        "width": 35,
+        "height": 6,
+        "fontSize": 8,
+        "fontColor": "#008F7A",
+        "alignment": "left",
+        "fontWeight": "bold"
+      },
+      "factuurnummer": {
+        "type": "text",
+        "content": "F-2025-001",
+        "position": { "x": 165, "y": 55 },
+        "width": 30,
+        "height": 6,
+        "fontSize": 9,
+        "fontColor": "#000000",
+        "alignment": "right"
+      },
+      "datum_label": {
+        "type": "text",
+        "content": "Factuurdatum",
+        "position": { "x": 130, "y": 62 },
+        "width": 35,
+        "height": 6,
+        "fontSize": 8,
+        "fontColor": "#008F7A",
+        "alignment": "left",
+        "fontWeight": "bold"
+      },
+      "datum": {
+        "type": "text",
+        "content": "01-01-2025",
+        "position": { "x": 165, "y": 62 },
+        "width": 30,
+        "height": 6,
+        "fontSize": 9,
+        "fontColor": "#000000",
+        "alignment": "right"
+      },
+      "vervaldatum_label": {
+        "type": "text",
+        "content": "Vervaldatum",
+        "position": { "x": 130, "y": 69 },
+        "width": 35,
+        "height": 6,
+        "fontSize": 8,
+        "fontColor": "#008F7A",
+        "alignment": "left",
+        "fontWeight": "bold"
+      },
+      "vervaldatum": {
+        "type": "text",
+        "content": "31-01-2025",
+        "position": { "x": 165, "y": 69 },
+        "width": 30,
+        "height": 6,
+        "fontSize": 9,
+        "fontColor": "#000000",
+        "alignment": "right"
+      },
+      "klant_sectie_label": {
+        "type": "text",
+        "content": "FACTUUR AAN",
+        "position": { "x": 15, "y": 55 },
+        "width": 50,
+        "height": 6,
+        "fontSize": 8,
+        "fontColor": "#008F7A",
+        "alignment": "left",
+        "fontWeight": "bold"
+      },
+      "klant_naam": {
+        "type": "text",
+        "content": "Klantnaam B.V.",
+        "position": { "x": 15, "y": 63 },
+        "width": 100,
+        "height": 8,
+        "fontSize": 12,
+        "fontColor": "#000000",
+        "alignment": "left",
+        "fontWeight": "bold"
+      },
+      "klant_adres": {
+        "type": "text",
+        "content": "Klantstraat 10\n5678 CD Klantplaats\nNederland",
+        "position": { "x": 15, "y": 72 },
+        "width": 100,
+        "height": 18,
+        "fontSize": 9,
+        "fontColor": "#333333",
+        "alignment": "left",
+        "lineHeight": 1.5
+      },
+      "tabel_header_bg": {
+        "type": "rectangle",
+        "position": { "x": 15, "y": 98 },
+        "width": 180,
+        "height": 10,
+        "color": "#003D33",
+        "borderWidth": 0
+      },
+      "kolom_omschrijving": {
+        "type": "text",
+        "content": "Omschrijving",
+        "position": { "x": 17, "y": 100 },
+        "width": 80,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#FFFFFF",
+        "alignment": "left",
+        "fontWeight": "bold"
+      },
+      "kolom_aantal": {
+        "type": "text",
+        "content": "Aantal",
+        "position": { "x": 100, "y": 100 },
+        "width": 25,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#FFFFFF",
+        "alignment": "center",
+        "fontWeight": "bold"
+      },
+      "kolom_tarief": {
+        "type": "text",
+        "content": "Tarief",
+        "position": { "x": 128, "y": 100 },
+        "width": 30,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#FFFFFF",
+        "alignment": "right",
+        "fontWeight": "bold"
+      },
+      "kolom_totaal": {
+        "type": "text",
+        "content": "Bedrag",
+        "position": { "x": 160, "y": 100 },
+        "width": 33,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#FFFFFF",
+        "alignment": "right",
+        "fontWeight": "bold"
+      },
+      "regel1_bg": {
+        "type": "rectangle",
+        "position": { "x": 15, "y": 108 },
+        "width": 180,
+        "height": 10,
+        "color": "#F5F5F5",
+        "borderWidth": 0
+      },
+      "regel1_omschrijving": {
+        "type": "text",
+        "content": "Consultancy werkzaamheden",
+        "position": { "x": 17, "y": 110 },
+        "width": 80,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#333333",
+        "alignment": "left"
+      },
+      "regel1_aantal": {
+        "type": "text",
+        "content": "8",
+        "position": { "x": 100, "y": 110 },
+        "width": 25,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#333333",
+        "alignment": "center"
+      },
+      "regel1_tarief": {
+        "type": "text",
+        "content": "€ 95,00",
+        "position": { "x": 128, "y": 110 },
+        "width": 30,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#333333",
+        "alignment": "right"
+      },
+      "regel1_totaal": {
+        "type": "text",
+        "content": "€ 760,00",
+        "position": { "x": 160, "y": 110 },
+        "width": 33,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#333333",
+        "alignment": "right"
+      },
+      "regel2_omschrijving": {
+        "type": "text",
+        "content": "Projectmanagement",
+        "position": { "x": 17, "y": 120 },
+        "width": 80,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#333333",
+        "alignment": "left"
+      },
+      "regel2_aantal": {
+        "type": "text",
+        "content": "4",
+        "position": { "x": 100, "y": 120 },
+        "width": 25,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#333333",
+        "alignment": "center"
+      },
+      "regel2_tarief": {
+        "type": "text",
+        "content": "€ 85,00",
+        "position": { "x": 128, "y": 120 },
+        "width": 30,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#333333",
+        "alignment": "right"
+      },
+      "regel2_totaal": {
+        "type": "text",
+        "content": "€ 340,00",
+        "position": { "x": 160, "y": 120 },
+        "width": 33,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#333333",
+        "alignment": "right"
+      },
+      "regel3_bg": {
+        "type": "rectangle",
+        "position": { "x": 15, "y": 128 },
+        "width": 180,
+        "height": 10,
+        "color": "#F5F5F5",
+        "borderWidth": 0
+      },
+      "regel3_omschrijving": {
+        "type": "text",
+        "content": "Reiskosten",
+        "position": { "x": 17, "y": 130 },
+        "width": 80,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#333333",
+        "alignment": "left"
+      },
+      "regel3_aantal": {
+        "type": "text",
+        "content": "1",
+        "position": { "x": 100, "y": 130 },
+        "width": 25,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#333333",
+        "alignment": "center"
+      },
+      "regel3_tarief": {
+        "type": "text",
+        "content": "€ 45,00",
+        "position": { "x": 128, "y": 130 },
+        "width": 30,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#333333",
+        "alignment": "right"
+      },
+      "regel3_totaal": {
+        "type": "text",
+        "content": "€ 45,00",
+        "position": { "x": 160, "y": 130 },
+        "width": 33,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#333333",
+        "alignment": "right"
+      },
+      "totaal_sectie_bg": {
+        "type": "rectangle",
+        "position": { "x": 120, "y": 150 },
+        "width": 75,
+        "height": 35,
+        "color": "#F9FAFB",
+        "borderWidth": 1,
+        "borderColor": "#E5E7EB"
+      },
+      "subtotaal_label": {
+        "type": "text",
+        "content": "Subtotaal",
+        "position": { "x": 122, "y": 153 },
+        "width": 35,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#666666",
+        "alignment": "left"
+      },
+      "subtotaal": {
+        "type": "text",
+        "content": "€ 1.145,00",
+        "position": { "x": 157, "y": 153 },
+        "width": 36,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#000000",
+        "alignment": "right"
+      },
+      "btw_label": {
+        "type": "text",
+        "content": "BTW (21%)",
+        "position": { "x": 122, "y": 161 },
+        "width": 35,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#666666",
+        "alignment": "left"
+      },
+      "btw": {
+        "type": "text",
+        "content": "€ 240,45",
+        "position": { "x": 157, "y": 161 },
+        "width": 36,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#000000",
+        "alignment": "right"
+      },
+      "totaal_bg": {
+        "type": "rectangle",
+        "position": { "x": 120, "y": 170 },
+        "width": 75,
+        "height": 14,
+        "color": "#003D33",
+        "borderWidth": 0
+      },
+      "totaal_label": {
+        "type": "text",
+        "content": "TOTAAL",
+        "position": { "x": 122, "y": 173 },
+        "width": 30,
+        "height": 9,
+        "fontSize": 11,
+        "fontColor": "#FFFFFF",
+        "alignment": "left",
+        "fontWeight": "bold"
+      },
+      "totaal": {
+        "type": "text",
+        "content": "€ 1.385,45",
+        "position": { "x": 152, "y": 173 },
+        "width": 41,
+        "height": 9,
+        "fontSize": 11,
+        "fontColor": "#FFFFFF",
+        "alignment": "right",
+        "fontWeight": "bold"
+      },
+      "betaalinfo_label": {
+        "type": "text",
+        "content": "BETAALGEGEVENS",
+        "position": { "x": 15, "y": 210 },
+        "width": 60,
+        "height": 6,
+        "fontSize": 8,
+        "fontColor": "#008F7A",
+        "alignment": "left",
+        "fontWeight": "bold"
+      },
+      "betaalinfo": {
+        "type": "text",
+        "content": "IBAN: NL00 BANK 0000 0000 00\nt.n.v. Uw Bedrijfsnaam\nBetalingstermijn: 30 dagen\nVermelding: Factuurnummer",
+        "position": { "x": 15, "y": 218 },
+        "width": 100,
+        "height": 22,
+        "fontSize": 9,
+        "fontColor": "#333333",
+        "alignment": "left",
+        "lineHeight": 1.5
+      },
+      "opmerking_label": {
+        "type": "text",
+        "content": "OPMERKINGEN",
+        "position": { "x": 15, "y": 245 },
+        "width": 60,
+        "height": 6,
+        "fontSize": 8,
+        "fontColor": "#008F7A",
+        "alignment": "left",
+        "fontWeight": "bold"
+      },
+      "opmerking": {
+        "type": "text",
+        "content": "Bedankt voor uw vertrouwen in onze dienstverlening.",
+        "position": { "x": 15, "y": 253 },
+        "width": 120,
+        "height": 8,
+        "fontSize": 9,
+        "fontColor": "#666666",
+        "alignment": "left"
+      },
+      "footer_lijn": {
+        "type": "rectangle",
+        "position": { "x": 0, "y": 280 },
+        "width": 210,
+        "height": 2,
+        "color": "#008F7A",
+        "borderWidth": 0
+      },
+      "footer": {
+        "type": "text",
+        "content": "Uw Bedrijfsnaam B.V.  |  KvK: 00000000  |  BTW: NL000000000B01  |  www.uwbedrijf.nl",
+        "position": { "x": 15, "y": 284 },
+        "width": 180,
+        "height": 7,
+        "fontSize": 7,
+        "fontColor": "#999999",
+        "alignment": "center"
+      }
+    }
+  ]
+}

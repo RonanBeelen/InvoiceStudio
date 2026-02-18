@@ -1,0 +1,381 @@
+{
+  "basePdf": { "width": 210, "height": 297, "padding": [10, 10, 10, 10] },
+  "schemas": [
+    {
+      "bedrijfsnaam": {
+        "type": "text",
+        "content": "Uw Bedrijfsnaam",
+        "position": { "x": 15, "y": 15 },
+        "width": 120,
+        "height": 10,
+        "fontSize": 22,
+        "fontColor": "#000000",
+        "alignment": "left",
+        "fontWeight": "bold"
+      },
+      "bedrijfsadres": {
+        "type": "text",
+        "content": "Straatnaam 1\n1234 AB Plaatsnaam\nTel: 06-12345678\nEmail: info@bedrijf.nl",
+        "position": { "x": 15, "y": 27 },
+        "width": 120,
+        "height": 22,
+        "fontSize": 9,
+        "fontColor": "#666666",
+        "alignment": "left",
+        "lineHeight": 1.4
+      },
+      "factuur_titel": {
+        "type": "text",
+        "content": "FACTUUR",
+        "position": { "x": 140, "y": 15 },
+        "width": 55,
+        "height": 12,
+        "fontSize": 28,
+        "fontColor": "#000000",
+        "alignment": "right",
+        "fontWeight": "bold"
+      },
+      "lijn_header": {
+        "type": "line",
+        "position": { "x": 15, "y": 52 },
+        "width": 180,
+        "height": 1,
+        "color": "#000000"
+      },
+      "factuurnummer_label": {
+        "type": "text",
+        "content": "Factuurnummer:",
+        "position": { "x": 120, "y": 56 },
+        "width": 40,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#666666",
+        "alignment": "left"
+      },
+      "factuurnummer": {
+        "type": "text",
+        "content": "F-2025-001",
+        "position": { "x": 160, "y": 56 },
+        "width": 35,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#000000",
+        "alignment": "right"
+      },
+      "datum_label": {
+        "type": "text",
+        "content": "Factuurdatum:",
+        "position": { "x": 120, "y": 63 },
+        "width": 40,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#666666",
+        "alignment": "left"
+      },
+      "datum": {
+        "type": "text",
+        "content": "01-01-2025",
+        "position": { "x": 160, "y": 63 },
+        "width": 35,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#000000",
+        "alignment": "right"
+      },
+      "vervaldatum_label": {
+        "type": "text",
+        "content": "Vervaldatum:",
+        "position": { "x": 120, "y": 70 },
+        "width": 40,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#666666",
+        "alignment": "left"
+      },
+      "vervaldatum": {
+        "type": "text",
+        "content": "31-01-2025",
+        "position": { "x": 160, "y": 70 },
+        "width": 35,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#000000",
+        "alignment": "right"
+      },
+      "klant_label": {
+        "type": "text",
+        "content": "Factuur aan:",
+        "position": { "x": 15, "y": 56 },
+        "width": 40,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#666666",
+        "alignment": "left"
+      },
+      "klant_naam": {
+        "type": "text",
+        "content": "Klantnaam",
+        "position": { "x": 15, "y": 63 },
+        "width": 90,
+        "height": 7,
+        "fontSize": 10,
+        "fontColor": "#000000",
+        "alignment": "left",
+        "fontWeight": "bold"
+      },
+      "klant_adres": {
+        "type": "text",
+        "content": "Klantstraat 10\n5678 CD Klantplaats",
+        "position": { "x": 15, "y": 71 },
+        "width": 90,
+        "height": 14,
+        "fontSize": 9,
+        "fontColor": "#333333",
+        "alignment": "left",
+        "lineHeight": 1.4
+      },
+      "lijn_tabel_top": {
+        "type": "line",
+        "position": { "x": 15, "y": 92 },
+        "width": 180,
+        "height": 1,
+        "color": "#000000"
+      },
+      "kolom_omschrijving": {
+        "type": "text",
+        "content": "Omschrijving",
+        "position": { "x": 15, "y": 94 },
+        "width": 90,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#000000",
+        "alignment": "left",
+        "fontWeight": "bold"
+      },
+      "kolom_aantal": {
+        "type": "text",
+        "content": "Aantal",
+        "position": { "x": 105, "y": 94 },
+        "width": 25,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#000000",
+        "alignment": "center",
+        "fontWeight": "bold"
+      },
+      "kolom_prijs": {
+        "type": "text",
+        "content": "Prijs",
+        "position": { "x": 130, "y": 94 },
+        "width": 30,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#000000",
+        "alignment": "right",
+        "fontWeight": "bold"
+      },
+      "kolom_totaal": {
+        "type": "text",
+        "content": "Totaal",
+        "position": { "x": 160, "y": 94 },
+        "width": 35,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#000000",
+        "alignment": "right",
+        "fontWeight": "bold"
+      },
+      "lijn_tabel_header": {
+        "type": "line",
+        "position": { "x": 15, "y": 102 },
+        "width": 180,
+        "height": 1,
+        "color": "#cccccc"
+      },
+      "regel1_omschrijving": {
+        "type": "text",
+        "content": "Dienst of product omschrijving",
+        "position": { "x": 15, "y": 105 },
+        "width": 90,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#333333",
+        "alignment": "left"
+      },
+      "regel1_aantal": {
+        "type": "text",
+        "content": "1",
+        "position": { "x": 105, "y": 105 },
+        "width": 25,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#333333",
+        "alignment": "center"
+      },
+      "regel1_prijs": {
+        "type": "text",
+        "content": "€ 500,00",
+        "position": { "x": 130, "y": 105 },
+        "width": 30,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#333333",
+        "alignment": "right"
+      },
+      "regel1_totaal": {
+        "type": "text",
+        "content": "€ 500,00",
+        "position": { "x": 160, "y": 105 },
+        "width": 35,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#333333",
+        "alignment": "right"
+      },
+      "regel2_omschrijving": {
+        "type": "text",
+        "content": "Extra dienstverlening",
+        "position": { "x": 15, "y": 113 },
+        "width": 90,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#333333",
+        "alignment": "left"
+      },
+      "regel2_aantal": {
+        "type": "text",
+        "content": "2",
+        "position": { "x": 105, "y": 113 },
+        "width": 25,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#333333",
+        "alignment": "center"
+      },
+      "regel2_prijs": {
+        "type": "text",
+        "content": "€ 150,00",
+        "position": { "x": 130, "y": 113 },
+        "width": 30,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#333333",
+        "alignment": "right"
+      },
+      "regel2_totaal": {
+        "type": "text",
+        "content": "€ 300,00",
+        "position": { "x": 160, "y": 113 },
+        "width": 35,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#333333",
+        "alignment": "right"
+      },
+      "lijn_subtotaal": {
+        "type": "line",
+        "position": { "x": 120, "y": 135 },
+        "width": 75,
+        "height": 1,
+        "color": "#cccccc"
+      },
+      "subtotaal_label": {
+        "type": "text",
+        "content": "Subtotaal:",
+        "position": { "x": 120, "y": 138 },
+        "width": 40,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#666666",
+        "alignment": "left"
+      },
+      "subtotaal": {
+        "type": "text",
+        "content": "€ 800,00",
+        "position": { "x": 160, "y": 138 },
+        "width": 35,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#000000",
+        "alignment": "right"
+      },
+      "btw_label": {
+        "type": "text",
+        "content": "BTW (21%):",
+        "position": { "x": 120, "y": 146 },
+        "width": 40,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#666666",
+        "alignment": "left"
+      },
+      "btw": {
+        "type": "text",
+        "content": "€ 168,00",
+        "position": { "x": 160, "y": 146 },
+        "width": 35,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#000000",
+        "alignment": "right"
+      },
+      "lijn_totaal": {
+        "type": "line",
+        "position": { "x": 120, "y": 155 },
+        "width": 75,
+        "height": 1,
+        "color": "#000000"
+      },
+      "totaal_label": {
+        "type": "text",
+        "content": "Totaal:",
+        "position": { "x": 120, "y": 158 },
+        "width": 40,
+        "height": 9,
+        "fontSize": 12,
+        "fontColor": "#000000",
+        "alignment": "left",
+        "fontWeight": "bold"
+      },
+      "totaal": {
+        "type": "text",
+        "content": "€ 968,00",
+        "position": { "x": 160, "y": 158 },
+        "width": 35,
+        "height": 9,
+        "fontSize": 12,
+        "fontColor": "#000000",
+        "alignment": "right",
+        "fontWeight": "bold"
+      },
+      "betaalinfo": {
+        "type": "text",
+        "content": "Gelieve het bedrag binnen 30 dagen over te maken op:\nIBAN: NL00 BANK 0000 0000 00\nt.n.v. Uw Bedrijfsnaam\no.v.v. factuurnummer",
+        "position": { "x": 15, "y": 200 },
+        "width": 120,
+        "height": 25,
+        "fontSize": 9,
+        "fontColor": "#666666",
+        "alignment": "left",
+        "lineHeight": 1.5
+      },
+      "lijn_footer": {
+        "type": "line",
+        "position": { "x": 15, "y": 270 },
+        "width": 180,
+        "height": 1,
+        "color": "#cccccc"
+      },
+      "footer": {
+        "type": "text",
+        "content": "Uw Bedrijfsnaam  |  KvK: 00000000  |  BTW: NL000000000B01",
+        "position": { "x": 15, "y": 273 },
+        "width": 180,
+        "height": 7,
+        "fontSize": 8,
+        "fontColor": "#999999",
+        "alignment": "center"
+      }
+    }
+  ]
+}

@@ -1,0 +1,571 @@
+{
+  "basePdf": { "width": 210, "height": 297, "padding": [0, 0, 0, 0] },
+  "schemas": [
+    {
+      "sidebar": {
+        "type": "rectangle",
+        "position": { "x": 0, "y": 0 },
+        "width": 60,
+        "height": 297,
+        "color": "#003D33",
+        "borderWidth": 0
+      },
+      "sidebar_accent": {
+        "type": "rectangle",
+        "position": { "x": 0, "y": 0 },
+        "width": 60,
+        "height": 80,
+        "color": "#00524A",
+        "borderWidth": 0
+      },
+      "logo": {
+        "type": "image",
+        "content": "",
+        "position": { "x": 10, "y": 12 },
+        "width": 40,
+        "height": 40
+      },
+      "bedrijfsnaam_sidebar": {
+        "type": "text",
+        "content": "UW\nBEDRIJF",
+        "position": { "x": 5, "y": 55 },
+        "width": 50,
+        "height": 20,
+        "fontSize": 14,
+        "fontColor": "#4DDFB5",
+        "alignment": "center",
+        "fontWeight": "bold",
+        "lineHeight": 1.2
+      },
+      "sidebar_lijn1": {
+        "type": "rectangle",
+        "position": { "x": 15, "y": 90 },
+        "width": 30,
+        "height": 1,
+        "color": "#008F7A",
+        "borderWidth": 0
+      },
+      "sidebar_contact_label": {
+        "type": "text",
+        "content": "CONTACT",
+        "position": { "x": 5, "y": 98 },
+        "width": 50,
+        "height": 6,
+        "fontSize": 7,
+        "fontColor": "#4DDFB5",
+        "alignment": "center",
+        "fontWeight": "bold"
+      },
+      "sidebar_telefoon": {
+        "type": "text",
+        "content": "06-12345678",
+        "position": { "x": 5, "y": 107 },
+        "width": 50,
+        "height": 6,
+        "fontSize": 8,
+        "fontColor": "#FFFFFF",
+        "alignment": "center"
+      },
+      "sidebar_email": {
+        "type": "text",
+        "content": "info@bedrijf.nl",
+        "position": { "x": 5, "y": 114 },
+        "width": 50,
+        "height": 6,
+        "fontSize": 8,
+        "fontColor": "#FFFFFF",
+        "alignment": "center"
+      },
+      "sidebar_website": {
+        "type": "text",
+        "content": "www.bedrijf.nl",
+        "position": { "x": 5, "y": 121 },
+        "width": 50,
+        "height": 6,
+        "fontSize": 8,
+        "fontColor": "#FFFFFF",
+        "alignment": "center"
+      },
+      "sidebar_lijn2": {
+        "type": "rectangle",
+        "position": { "x": 15, "y": 133 },
+        "width": 30,
+        "height": 1,
+        "color": "#008F7A",
+        "borderWidth": 0
+      },
+      "sidebar_adres_label": {
+        "type": "text",
+        "content": "ADRES",
+        "position": { "x": 5, "y": 140 },
+        "width": 50,
+        "height": 6,
+        "fontSize": 7,
+        "fontColor": "#4DDFB5",
+        "alignment": "center",
+        "fontWeight": "bold"
+      },
+      "sidebar_adres": {
+        "type": "text",
+        "content": "Straatnaam 1\n1234 AB\nPlaatsnaam",
+        "position": { "x": 5, "y": 149 },
+        "width": 50,
+        "height": 18,
+        "fontSize": 8,
+        "fontColor": "#FFFFFF",
+        "alignment": "center",
+        "lineHeight": 1.5
+      },
+      "sidebar_lijn3": {
+        "type": "rectangle",
+        "position": { "x": 15, "y": 175 },
+        "width": 30,
+        "height": 1,
+        "color": "#008F7A",
+        "borderWidth": 0
+      },
+      "sidebar_bank_label": {
+        "type": "text",
+        "content": "BANKGEGEVENS",
+        "position": { "x": 5, "y": 182 },
+        "width": 50,
+        "height": 6,
+        "fontSize": 7,
+        "fontColor": "#4DDFB5",
+        "alignment": "center",
+        "fontWeight": "bold"
+      },
+      "sidebar_iban": {
+        "type": "text",
+        "content": "NL00 BANK\n0000 0000 00",
+        "position": { "x": 5, "y": 191 },
+        "width": 50,
+        "height": 12,
+        "fontSize": 8,
+        "fontColor": "#FFFFFF",
+        "alignment": "center",
+        "lineHeight": 1.4
+      },
+      "sidebar_kvk": {
+        "type": "text",
+        "content": "KvK: 00000000\nBTW: NL000000000B01",
+        "position": { "x": 5, "y": 210 },
+        "width": 50,
+        "height": 12,
+        "fontSize": 7,
+        "fontColor": "#AAAAAA",
+        "alignment": "center",
+        "lineHeight": 1.4
+      },
+      "factuur_titel": {
+        "type": "text",
+        "content": "FACTUUR",
+        "position": { "x": 70, "y": 15 },
+        "width": 80,
+        "height": 14,
+        "fontSize": 32,
+        "fontColor": "#003D33",
+        "alignment": "left",
+        "fontWeight": "bold"
+      },
+      "factuur_accent_lijn": {
+        "type": "rectangle",
+        "position": { "x": 70, "y": 32 },
+        "width": 40,
+        "height": 3,
+        "color": "#4DDFB5",
+        "borderWidth": 0
+      },
+      "factuurnummer_label": {
+        "type": "text",
+        "content": "Nummer",
+        "position": { "x": 155, "y": 15 },
+        "width": 40,
+        "height": 6,
+        "fontSize": 8,
+        "fontColor": "#999999",
+        "alignment": "right"
+      },
+      "factuurnummer": {
+        "type": "text",
+        "content": "F-2025-001",
+        "position": { "x": 155, "y": 21 },
+        "width": 40,
+        "height": 7,
+        "fontSize": 10,
+        "fontColor": "#003D33",
+        "alignment": "right",
+        "fontWeight": "bold"
+      },
+      "datum_label": {
+        "type": "text",
+        "content": "Datum",
+        "position": { "x": 155, "y": 30 },
+        "width": 40,
+        "height": 6,
+        "fontSize": 8,
+        "fontColor": "#999999",
+        "alignment": "right"
+      },
+      "datum": {
+        "type": "text",
+        "content": "01-01-2025",
+        "position": { "x": 155, "y": 36 },
+        "width": 40,
+        "height": 7,
+        "fontSize": 10,
+        "fontColor": "#003D33",
+        "alignment": "right"
+      },
+      "vervaldatum_label": {
+        "type": "text",
+        "content": "Vervalt op",
+        "position": { "x": 155, "y": 45 },
+        "width": 40,
+        "height": 6,
+        "fontSize": 8,
+        "fontColor": "#999999",
+        "alignment": "right"
+      },
+      "vervaldatum": {
+        "type": "text",
+        "content": "31-01-2025",
+        "position": { "x": 155, "y": 51 },
+        "width": 40,
+        "height": 7,
+        "fontSize": 10,
+        "fontColor": "#003D33",
+        "alignment": "right"
+      },
+      "klant_label": {
+        "type": "text",
+        "content": "FACTUUR AAN",
+        "position": { "x": 70, "y": 45 },
+        "width": 60,
+        "height": 6,
+        "fontSize": 8,
+        "fontColor": "#008F7A",
+        "alignment": "left",
+        "fontWeight": "bold"
+      },
+      "klant_naam": {
+        "type": "text",
+        "content": "Klantnaam B.V.",
+        "position": { "x": 70, "y": 53 },
+        "width": 80,
+        "height": 8,
+        "fontSize": 12,
+        "fontColor": "#000000",
+        "alignment": "left",
+        "fontWeight": "bold"
+      },
+      "klant_adres": {
+        "type": "text",
+        "content": "Klantstraat 10\n5678 CD Klantplaats\nNederland",
+        "position": { "x": 70, "y": 62 },
+        "width": 80,
+        "height": 18,
+        "fontSize": 9,
+        "fontColor": "#666666",
+        "alignment": "left",
+        "lineHeight": 1.5
+      },
+      "tabel_header_lijn": {
+        "type": "rectangle",
+        "position": { "x": 70, "y": 90 },
+        "width": 125,
+        "height": 2,
+        "color": "#003D33",
+        "borderWidth": 0
+      },
+      "kolom_omschrijving": {
+        "type": "text",
+        "content": "OMSCHRIJVING",
+        "position": { "x": 70, "y": 95 },
+        "width": 65,
+        "height": 6,
+        "fontSize": 8,
+        "fontColor": "#003D33",
+        "alignment": "left",
+        "fontWeight": "bold"
+      },
+      "kolom_uren": {
+        "type": "text",
+        "content": "UREN",
+        "position": { "x": 138, "y": 95 },
+        "width": 20,
+        "height": 6,
+        "fontSize": 8,
+        "fontColor": "#003D33",
+        "alignment": "center",
+        "fontWeight": "bold"
+      },
+      "kolom_tarief": {
+        "type": "text",
+        "content": "TARIEF",
+        "position": { "x": 158, "y": 95 },
+        "width": 18,
+        "height": 6,
+        "fontSize": 8,
+        "fontColor": "#003D33",
+        "alignment": "right",
+        "fontWeight": "bold"
+      },
+      "kolom_bedrag": {
+        "type": "text",
+        "content": "BEDRAG",
+        "position": { "x": 177, "y": 95 },
+        "width": 18,
+        "height": 6,
+        "fontSize": 8,
+        "fontColor": "#003D33",
+        "alignment": "right",
+        "fontWeight": "bold"
+      },
+      "tabel_header_lijn2": {
+        "type": "rectangle",
+        "position": { "x": 70, "y": 103 },
+        "width": 125,
+        "height": 1,
+        "color": "#E5E7EB",
+        "borderWidth": 0
+      },
+      "regel1_omschrijving": {
+        "type": "text",
+        "content": "Webdesign & development",
+        "position": { "x": 70, "y": 108 },
+        "width": 65,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#333333",
+        "alignment": "left"
+      },
+      "regel1_uren": {
+        "type": "text",
+        "content": "16",
+        "position": { "x": 138, "y": 108 },
+        "width": 20,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#333333",
+        "alignment": "center"
+      },
+      "regel1_tarief": {
+        "type": "text",
+        "content": "€ 85",
+        "position": { "x": 158, "y": 108 },
+        "width": 18,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#333333",
+        "alignment": "right"
+      },
+      "regel1_bedrag": {
+        "type": "text",
+        "content": "€ 1.360",
+        "position": { "x": 177, "y": 108 },
+        "width": 18,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#333333",
+        "alignment": "right"
+      },
+      "regel_lijn1": {
+        "type": "rectangle",
+        "position": { "x": 70, "y": 117 },
+        "width": 125,
+        "height": 1,
+        "color": "#F3F4F6",
+        "borderWidth": 0
+      },
+      "regel2_omschrijving": {
+        "type": "text",
+        "content": "UX/UI Design",
+        "position": { "x": 70, "y": 121 },
+        "width": 65,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#333333",
+        "alignment": "left"
+      },
+      "regel2_uren": {
+        "type": "text",
+        "content": "8",
+        "position": { "x": 138, "y": 121 },
+        "width": 20,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#333333",
+        "alignment": "center"
+      },
+      "regel2_tarief": {
+        "type": "text",
+        "content": "€ 95",
+        "position": { "x": 158, "y": 121 },
+        "width": 18,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#333333",
+        "alignment": "right"
+      },
+      "regel2_bedrag": {
+        "type": "text",
+        "content": "€ 760",
+        "position": { "x": 177, "y": 121 },
+        "width": 18,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#333333",
+        "alignment": "right"
+      },
+      "regel_lijn2": {
+        "type": "rectangle",
+        "position": { "x": 70, "y": 130 },
+        "width": 125,
+        "height": 1,
+        "color": "#F3F4F6",
+        "borderWidth": 0
+      },
+      "regel3_omschrijving": {
+        "type": "text",
+        "content": "Content strategie",
+        "position": { "x": 70, "y": 134 },
+        "width": 65,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#333333",
+        "alignment": "left"
+      },
+      "regel3_uren": {
+        "type": "text",
+        "content": "4",
+        "position": { "x": 138, "y": 134 },
+        "width": 20,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#333333",
+        "alignment": "center"
+      },
+      "regel3_tarief": {
+        "type": "text",
+        "content": "€ 75",
+        "position": { "x": 158, "y": 134 },
+        "width": 18,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#333333",
+        "alignment": "right"
+      },
+      "regel3_bedrag": {
+        "type": "text",
+        "content": "€ 300",
+        "position": { "x": 177, "y": 134 },
+        "width": 18,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#333333",
+        "alignment": "right"
+      },
+      "totaal_lijn": {
+        "type": "rectangle",
+        "position": { "x": 140, "y": 155 },
+        "width": 55,
+        "height": 2,
+        "color": "#003D33",
+        "borderWidth": 0
+      },
+      "subtotaal_label": {
+        "type": "text",
+        "content": "Subtotaal",
+        "position": { "x": 140, "y": 160 },
+        "width": 30,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#666666",
+        "alignment": "left"
+      },
+      "subtotaal": {
+        "type": "text",
+        "content": "€ 2.420,00",
+        "position": { "x": 170, "y": 160 },
+        "width": 25,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#333333",
+        "alignment": "right"
+      },
+      "btw_label": {
+        "type": "text",
+        "content": "BTW 21%",
+        "position": { "x": 140, "y": 168 },
+        "width": 30,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#666666",
+        "alignment": "left"
+      },
+      "btw": {
+        "type": "text",
+        "content": "€ 508,20",
+        "position": { "x": 170, "y": 168 },
+        "width": 25,
+        "height": 7,
+        "fontSize": 9,
+        "fontColor": "#333333",
+        "alignment": "right"
+      },
+      "totaal_bg": {
+        "type": "rectangle",
+        "position": { "x": 140, "y": 178 },
+        "width": 55,
+        "height": 14,
+        "color": "#4DDFB5",
+        "borderWidth": 0
+      },
+      "totaal_label": {
+        "type": "text",
+        "content": "TOTAAL",
+        "position": { "x": 142, "y": 181 },
+        "width": 25,
+        "height": 9,
+        "fontSize": 10,
+        "fontColor": "#003D33",
+        "alignment": "left",
+        "fontWeight": "bold"
+      },
+      "totaal": {
+        "type": "text",
+        "content": "€ 2.928,20",
+        "position": { "x": 167, "y": 181 },
+        "width": 26,
+        "height": 9,
+        "fontSize": 10,
+        "fontColor": "#003D33",
+        "alignment": "right",
+        "fontWeight": "bold"
+      },
+      "bedankt": {
+        "type": "text",
+        "content": "Bedankt voor het vertrouwen!",
+        "position": { "x": 70, "y": 210 },
+        "width": 80,
+        "height": 8,
+        "fontSize": 11,
+        "fontColor": "#008F7A",
+        "alignment": "left",
+        "fontWeight": "bold"
+      },
+      "betaalinfo": {
+        "type": "text",
+        "content": "Gelieve het totaalbedrag binnen 30 dagen over te maken\nonder vermelding van het factuurnummer.",
+        "position": { "x": 70, "y": 220 },
+        "width": 120,
+        "height": 14,
+        "fontSize": 9,
+        "fontColor": "#666666",
+        "alignment": "left",
+        "lineHeight": 1.5
+      }
+    }
+  ]
+}
