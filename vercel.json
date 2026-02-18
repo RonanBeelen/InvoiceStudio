@@ -1,0 +1,23 @@
+{
+  "builds": [
+    {
+      "src": "api/index.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "frontend/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/index.py" },
+    { "source": "/health", "destination": "/api/index.py" },
+    { "source": "/js/(.*)", "destination": "/frontend/js/$1" },
+    { "source": "/css/(.*)", "destination": "/frontend/css/$1" },
+    { "source": "/PNG/(.*)", "destination": "/frontend/PNG/$1" },
+    { "source": "/templates/(.*)", "destination": "/frontend/templates/$1" },
+    { "source": "/login", "destination": "/frontend/login.html" },
+    { "source": "/dashboard", "destination": "/frontend/dashboard.html" },
+    { "source": "/", "destination": "/frontend/dashboard.html" }
+  ]
+}
