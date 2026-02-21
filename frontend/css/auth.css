@@ -431,27 +431,98 @@ body {
     }
 }
 
+/* Mobile footer - hidden on desktop */
+.auth-mobile-footer {
+    display: none;
+}
+
 @media (max-width: 700px) {
-    .auth-layout {
-        flex-direction: column;
+    body {
+        padding: 0;
+        background: var(--color-background);
     }
 
+    .auth-layout {
+        flex-direction: column;
+        min-height: 100vh;
+        border-radius: 0;
+    }
+
+    /* Left panel: logo only */
     .auth-left {
         width: 100%;
         min-width: unset;
-        padding: 32px 24px;
+        padding: 32px 24px 8px;
+        background: var(--color-background);
+        align-items: center;
+        text-align: center;
         min-height: auto;
     }
 
-    .auth-left-heading {
-        font-size: 24px;
+    .auth-left-content {
+        padding-top: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
 
+    .auth-left-logo {
+        max-width: 160px;
+        margin-bottom: 8px;
+    }
+
+    /* Hide heading and subtext */
+    .auth-left-heading,
+    .auth-left-sub {
+        display: none;
+    }
+
+    /* Hide footer in left panel */
     .auth-left-footer {
         display: none;
     }
 
+    /* Right panel: form area */
     .auth-right {
-        padding: 32px 24px;
+        padding: 16px 24px 24px;
+        background: var(--color-background);
+        border-radius: 0;
+        flex: 1;
+    }
+
+    .auth-title {
+        font-size: 24px;
+        text-align: center;
+    }
+
+    .auth-card {
+        max-width: 100%;
+    }
+
+    /* Mobile footer at bottom */
+    .auth-mobile-footer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        padding: 24px;
+        font-size: 13px;
+        color: var(--color-text-secondary);
+    }
+
+    .auth-mobile-footer span {
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-text-primary);
+        margin-bottom: 4px;
+    }
+
+    .auth-mobile-footer a {
+        color: var(--color-text-secondary);
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+    .auth-mobile-footer a:hover {
+        color: var(--color-shamrock);
     }
 }

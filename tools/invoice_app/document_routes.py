@@ -7,8 +7,9 @@ from fastapi import APIRouter, HTTPException, status, Query, Depends
 from typing import Optional
 from .supabase_client import supabase
 from .auth_middleware import get_current_user
-from .pdf_generator import generate_pdf
+from .pdf_generator import generate_pdf, delete_from_storage
 from .settings_routes import format_document_number, get_default_settings
+from .activity_routes import _log_activity
 
 router = APIRouter(prefix="/api/documents")
 
@@ -269,12 +270,25 @@ async def create_document(doc_data: dict, user: dict = Depends(get_current_user)
                 )
 
         # 10. Store document record
+        # Convert display date (DD-MM-YYYY) to ISO (YYYY-MM-DD) for database DATE column
+        def display_to_iso(dd_mm_yyyy):
+            """Convert DD-MM-YYYY to YYYY-MM-DD for PostgreSQL DATE column."""
+            if not dd_mm_yyyy:
+                return None
+            parts = dd_mm_yyyy.split("-")
+            if len(parts) == 3 and len(parts[0]) == 2:
+                return f"{parts[2]}-{parts[1]}-{parts[0]}"
+            return dd_mm_yyyy  # Already ISO or unknown format
+
+        date_iso = display_to_iso(doc_data.get("date")) or datetime.utcnow().strftime("%Y-%m-%d")
+        due_date_iso = doc_data.get("due_date_iso") or (datetime.utcnow() + timedelta(days=payment_days)).strftime("%Y-%m-%d")
+
         doc_record = {
             "document_type": document_type,
             "document_number": document_number,
-            "date": doc_data.get("date") or datetime.utcnow().strftime("%Y-%m-%d"),
-            "due_date": doc_data.get("due_date_iso") or (datetime.utcnow() + timedelta(days=payment_days)).strftime("%Y-%m-%d"),
-            "customer_id": customer_id,
+            "date": date_iso,
+            "due_date": due_date_iso,
+            "customer_id": customer_id or None,
             "customer_name": customer.get("name", "") if customer else "",
             "template_id": template_id,
             "line_items": line_items,
@@ -288,6 +302,8 @@ async def create_document(doc_data: dict, user: dict = Depends(get_current_user)
             "user_id": user_id,
         }
 
+        import json as _json
+        print(f"[Documents] Inserting doc_record: {_json.dumps(doc_record, default=str, indent=2)}")
         result = await supabase.insert("documents", doc_record)
 
         # 11. Also log to usage_logs for statistics
@@ -301,6 +317,16 @@ async def create_document(doc_data: dict, user: dict = Depends(get_current_user)
                 })
             except Exception:
                 pass  # Non-blocking
+
+        # Log activity
+        await _log_activity(
+            user_id=user_id,
+            document_id=result.get("id"),
+            entity_type="document",
+            entity_id=result.get("id"),
+            action="created",
+            detail={"document_number": document_number, "type": document_type, "generated_pdf": generate}
+        )
 
         return result
 
@@ -337,6 +363,9 @@ async def list_documents(
             filters=filters,
             order_by=("created_at", True)  # Descending
         )
+        if documents:
+            d = documents[0]
+            print(f"[Documents] GET list: {len(documents)} docs, first={d.get('document_number')}, total={d.get('total_amount')}, notes='{d.get('notes', '')}'")
         return documents
     except Exception as e:
         print(f"[Documents] Error listing documents: {str(e)}")
@@ -360,25 +389,245 @@ async def get_document(document_id: str, user: dict = Depends(get_current_user))
 
 @router.put("/{document_id}")
 async def update_document(document_id: str, update_data: dict, user: dict = Depends(get_current_user)):
-    """Update a document (e.g., change status) for the current user."""
+    """Update a document for the current user. Supports full editing or simple status changes."""
     try:
         user_id = user["sub"]
-        rows = await supabase.select("documents", columns="id", filters={"id": document_id, "user_id": user_id})
+        rows = await supabase.select("documents", filters={"id": document_id, "user_id": user_id})
         if not rows:
             raise HTTPException(404, "Document not found")
 
-        allowed = ["status", "notes"]
-        clean_data = {k: v for k, v in update_data.items() if k in allowed}
+        existing_doc = rows[0]
 
-        if not clean_data:
-            raise HTTPException(400, "No valid fields to update")
+        # Full edit mode: line_items present means the user is editing the full document
+        if "line_items" in update_data:
+            line_items = update_data["line_items"]
+            if not line_items:
+                raise HTTPException(400, "At least one line item is required")
+
+            template_id = update_data.get("template_id", existing_doc.get("template_id"))
+            customer_id = update_data.get("customer_id") or existing_doc.get("customer_id")
+
+            # Fetch template
+            templates = await supabase.select("templates", filters={"id": template_id, "user_id": user_id})
+            if not templates:
+                raise HTTPException(404, "Template not found")
+            template = templates[0]
+            template_json = template["template_json"]
+
+            # Fetch company settings
+            settings_rows = await supabase.select("company_settings", filters={"user_id": user_id})
+            company_settings = settings_rows[0] if settings_rows else get_default_settings()
+
+            # Fetch customer
+            customer = None
+            if customer_id:
+                customers = await supabase.select("customers", filters={"id": customer_id, "user_id": user_id})
+                if customers:
+                    customer = customers[0]
+
+            # Dates
+            date_str = update_data.get("date") or existing_doc.get("date", "")
+            due_date_str = update_data.get("due_date") or existing_doc.get("due_date", "")
+
+            # Calculate totals
+            totals = calculate_totals(line_items)
+
+            # Build input_data for pdfme
+            document_number = existing_doc["document_number"]
+            document_type = update_data.get("document_type", existing_doc["document_type"])
+            input_data = build_input_data(
+                template_json, company_settings, customer,
+                line_items, document_number, date_str, due_date_str,
+                totals, document_type
+            )
+
+            # Generate PDF if requested
+            generate = update_data.get("generate_pdf", False)
+            pdf_url = existing_doc.get("pdf_url")
+            storage_path = existing_doc.get("storage_path")
+
+            if generate:
+                # Delete old PDF if it exists
+                if storage_path:
+                    try:
+                        await delete_from_storage(storage_path)
+                    except Exception:
+                        pass
+                pdf_result = await generate_pdf(
+                    template_json, input_data,
+                    filename=f"{document_type}_{document_number}"
+                )
+                pdf_url = pdf_result["pdf_url"]
+                storage_path = pdf_result["storage_path"]
+
+            # Convert display dates to ISO for DB
+            def display_to_iso(dd_mm_yyyy):
+                if not dd_mm_yyyy:
+                    return None
+                parts = dd_mm_yyyy.split("-")
+                if len(parts) == 3 and len(parts[0]) == 2:
+                    return f"{parts[2]}-{parts[1]}-{parts[0]}"
+                return dd_mm_yyyy
+
+            date_iso = display_to_iso(date_str) or existing_doc.get("date")
+            due_date_iso = update_data.get("due_date_iso") or existing_doc.get("due_date")
+
+            clean_data = {
+                "document_type": document_type,
+                "template_id": template_id,
+                "customer_id": customer_id or None,
+                "customer_name": customer.get("name", "") if customer else "",
+                "line_items": line_items,
+                "date": date_iso,
+                "due_date": due_date_iso,
+                "subtotal": totals["subtotal"],
+                "btw_amount": totals["btw_amount"],
+                "total_amount": totals["total"],
+                "notes": update_data.get("notes", existing_doc.get("notes", "")),
+                "status": "sent" if generate else existing_doc.get("status", "concept"),
+                "pdf_url": pdf_url,
+                "storage_path": storage_path,
+            }
+        else:
+            # Simple update (status/notes only)
+            allowed = ["status", "notes"]
+            clean_data = {k: v for k, v in update_data.items() if k in allowed}
+            if not clean_data:
+                raise HTTPException(400, "No valid fields to update")
+
+        import json as _json
+        print(f"[Documents] === UPDATE START for {document_id} ===")
+        print(f"[Documents] clean_data keys: {list(clean_data.keys())}")
+        if 'line_items' in clean_data:
+            print(f"[Documents] NEW line_items: {_json.dumps(clean_data['line_items'], default=str)}")
+        print(f"[Documents] NEW totals: subtotal={clean_data.get('subtotal')}, btw={clean_data.get('btw_amount')}, total={clean_data.get('total_amount')}")
+        print(f"[Documents] NEW notes='{clean_data.get('notes', '')}'")
 
         result = await supabase.update("documents", clean_data, {"id": document_id, "user_id": user_id})
+
+        if not result:
+            print(f"[Documents] WARNING: update returned empty result for document {document_id}")
+            rows = await supabase.select("documents", filters={"id": document_id, "user_id": user_id})
+            if rows:
+                print(f"[Documents] Re-fetched after fail: total={rows[0].get('total_amount')}")
+                raise HTTPException(500, "Document update failed — no rows affected")
+            raise HTTPException(500, "Document update failed and document not found")
+
+        print(f"[Documents] Supabase returned: total={result.get('total_amount')}, notes='{result.get('notes', '')}'")
+
+        # VERIFY: immediate read-back to confirm persistence
+        verify = await supabase.select("documents", filters={"id": document_id, "user_id": user_id})
+        if verify:
+            v = verify[0]
+            match = v.get('total_amount') == clean_data.get('total_amount')
+            print(f"[Documents] VERIFY read-back: total={v.get('total_amount')}, match={match}")
+            if not match:
+                print(f"[Documents] !!! DATA MISMATCH - update did NOT persist!")
+        print(f"[Documents] === UPDATE END ===")
+
+        # Log activity
+        action = "status_changed" if "status" in clean_data and "line_items" not in clean_data else "updated"
+        await _log_activity(
+            user_id=user_id,
+            document_id=document_id,
+            entity_type="document",
+            entity_id=document_id,
+            action=action,
+            detail={"fields": list(clean_data.keys())}
+        )
+
         return result
     except HTTPException:
         raise
     except Exception as e:
+        print(f"[Documents] Error updating document: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(500, f"Failed to update document: {str(e)}")
+
+
+@router.post("/{document_id}/generate-pdf")
+async def generate_document_pdf(document_id: str, user: dict = Depends(get_current_user)):
+    """Generate (or re-generate) PDF for an existing document."""
+    try:
+        user_id = user["sub"]
+        rows = await supabase.select("documents", filters={"id": document_id, "user_id": user_id})
+        if not rows:
+            raise HTTPException(404, "Document not found")
+
+        doc = rows[0]
+
+        # Fetch template
+        template_id = doc.get("template_id")
+        if not template_id:
+            raise HTTPException(400, "Document has no template assigned")
+        templates_rows = await supabase.select("templates", filters={"id": template_id, "user_id": user_id})
+        if not templates_rows:
+            raise HTTPException(404, "Template not found")
+        template_json = templates_rows[0]["template_json"]
+
+        # Fetch company settings
+        settings_rows = await supabase.select("company_settings", filters={"user_id": user_id})
+        company_settings = settings_rows[0] if settings_rows else get_default_settings()
+
+        # Fetch customer
+        customer = None
+        if doc.get("customer_id"):
+            customers = await supabase.select("customers", filters={"id": doc["customer_id"], "user_id": user_id})
+            if customers:
+                customer = customers[0]
+
+        # Build dates (stored as ISO in DB, convert to DD-MM-YYYY for display in template)
+        def iso_to_display(iso_date):
+            if not iso_date:
+                return ""
+            parts = str(iso_date).split("-")
+            if len(parts) == 3 and len(parts[0]) == 4:
+                return f"{parts[2]}-{parts[1]}-{parts[0]}"
+            return str(iso_date)
+
+        date_str = iso_to_display(doc.get("date"))
+        due_date_str = iso_to_display(doc.get("due_date"))
+
+        line_items = doc.get("line_items", [])
+        totals = calculate_totals(line_items)
+
+        input_data = build_input_data(
+            template_json, company_settings, customer,
+            line_items, doc["document_number"], date_str, due_date_str,
+            totals, doc["document_type"]
+        )
+
+        # Delete old PDF if exists
+        if doc.get("storage_path"):
+            try:
+                await delete_from_storage(doc["storage_path"])
+            except Exception:
+                pass
+
+        # Generate new PDF
+        pdf_result = await generate_pdf(
+            template_json, input_data,
+            filename=f"{doc['document_type']}_{doc['document_number']}"
+        )
+
+        # Update document record with new PDF URL
+        await supabase.update(
+            "documents",
+            {"pdf_url": pdf_result["pdf_url"], "storage_path": pdf_result["storage_path"]},
+            {"id": document_id, "user_id": user_id}
+        )
+
+        return {
+            "pdf_url": pdf_result["pdf_url"],
+            "document_number": doc["document_number"],
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"[Documents] Error generating PDF for document: {str(e)}")
+        raise HTTPException(500, f"Failed to generate PDF: {str(e)}")
 
 
 @router.delete("/{document_id}")
@@ -395,12 +644,21 @@ async def delete_document(document_id: str, user: dict = Depends(get_current_use
         # Try to delete stored PDF
         if doc.get("storage_path"):
             try:
-                from .pdf_generator import delete_from_storage
                 await delete_from_storage(doc["storage_path"])
             except Exception:
                 pass  # Non-blocking
 
         await supabase.delete("documents", {"id": document_id, "user_id": user_id})
+
+        await _log_activity(
+            user_id=user_id,
+            document_id=None,
+            entity_type="document",
+            entity_id=document_id,
+            action="deleted",
+            detail={"document_number": doc.get("document_number")}
+        )
+
         return {"message": "Document deleted", "id": document_id}
     except HTTPException:
         raise

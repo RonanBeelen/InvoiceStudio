@@ -38,6 +38,13 @@ def get_default_settings():
         "quote_number_prefix": "O",
         "footer_text": "",
         "additional_bank_accounts": [],
+        "email_from_name": "",
+        "email_from_address": "",
+        "email_reply_to": "",
+        "email_invoice_subject": "Invoice {NUMBER} from {COMPANY}",
+        "email_invoice_body": "Dear {CUSTOMER},\n\nPlease find attached invoice {NUMBER} for the amount of {TOTAL}.\n\nPayment is due by {DUE_DATE}.\n\nKind regards,\n{COMPANY}",
+        "email_quote_subject": "Quote {NUMBER} from {COMPANY}",
+        "email_quote_body": "Dear {CUSTOMER},\n\nPlease find attached our quote {NUMBER} for the amount of {TOTAL}.\n\nThis quote is valid for 30 days.\n\nKind regards,\n{COMPANY}",
     }
 
 

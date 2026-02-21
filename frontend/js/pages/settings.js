@@ -264,6 +264,57 @@ export async function initSettings() {
                     </div>
                 </div>
 
+                <!-- Email Settings -->
+                <div class="settings-section">
+                    <div class="settings-section-header settings-toggle" id="email-toggle">
+                        <i data-lucide="mail"></i>
+                        <h2>Email Settings</h2>
+                        <i data-lucide="chevron-down" class="toggle-icon" id="email-chevron"></i>
+                    </div>
+
+                    <div id="email-content" style="display: none;">
+                        <p style="color: var(--color-text-secondary); font-size: 13px; margin-bottom: var(--space-lg);">
+                            Configure email templates for sending invoices and quotes. Use placeholders: <code>{NUMBER}</code>, <code>{COMPANY}</code>, <code>{CUSTOMER}</code>, <code>{TOTAL}</code>, <code>{DUE_DATE}</code>, <code>{DATE}</code>
+                        </p>
+                        <div class="settings-grid">
+                            <div class="form-group">
+                                <label class="form-label" for="email_from_name">From name</label>
+                                <input type="text" id="email_from_name" class="form-input" placeholder="Company name">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="email_from_address">From email</label>
+                                <input type="email" id="email_from_address" class="form-input" placeholder="invoices@yourdomain.com">
+                            </div>
+                            <div class="form-group settings-full-width">
+                                <label class="form-label" for="email_reply_to">Reply-to email</label>
+                                <input type="email" id="email_reply_to" class="form-input" placeholder="Leave empty to use company email">
+                            </div>
+
+                            <div class="settings-divider"></div>
+
+                            <div class="form-group settings-full-width">
+                                <label class="form-label" for="email_invoice_subject">Invoice email subject</label>
+                                <input type="text" id="email_invoice_subject" class="form-input" placeholder="Invoice {NUMBER} from {COMPANY}">
+                            </div>
+                            <div class="form-group settings-full-width">
+                                <label class="form-label" for="email_invoice_body">Invoice email body</label>
+                                <textarea id="email_invoice_body" class="form-input" rows="5" placeholder="Dear {CUSTOMER},\n\nPlease find attached invoice {NUMBER}..."></textarea>
+                            </div>
+
+                            <div class="settings-divider"></div>
+
+                            <div class="form-group settings-full-width">
+                                <label class="form-label" for="email_quote_subject">Quote email subject</label>
+                                <input type="text" id="email_quote_subject" class="form-input" placeholder="Quote {NUMBER} from {COMPANY}">
+                            </div>
+                            <div class="form-group settings-full-width">
+                                <label class="form-label" for="email_quote_body">Quote email body</label>
+                                <textarea id="email_quote_body" class="form-input" rows="5" placeholder="Dear {CUSTOMER},\n\nPlease find attached our quote {NUMBER}..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Save Button -->
                 <div style="display: flex; justify-content: flex-end; margin-top: var(--space-lg); gap: var(--space-md);">
                     <button type="submit" class="action-btn edit-btn" style="flex: none; padding: var(--space-md) var(--space-xl); font-size: 16px;" id="save-btn">
@@ -299,7 +350,10 @@ function captureSettingsSnapshot() {
         'invoice_number_next', 'quote_number_format', 'quote_number_prefix',
         'quote_number_next', 'default_payment_terms_days', 'default_btw_percentage',
         'footer_text', 'brand_color_primary', 'brand_color_secondary',
-        'brand_color_tertiary', 'brand_color_4', 'brand_color_5'
+        'brand_color_tertiary', 'brand_color_4', 'brand_color_5',
+        'email_from_name', 'email_from_address', 'email_reply_to',
+        'email_invoice_subject', 'email_invoice_body',
+        'email_quote_subject', 'email_quote_body'
     ];
     const values = {};
     fields.forEach(id => {
@@ -389,6 +443,17 @@ async function loadSettings() {
             showLogoPreview(settings.logo_base64);
         }
 
+        // Email settings
+        const emailFields = [
+            'email_from_name', 'email_from_address', 'email_reply_to',
+            'email_invoice_subject', 'email_invoice_body',
+            'email_quote_subject', 'email_quote_body'
+        ];
+        emailFields.forEach(field => {
+            const el = document.getElementById(field);
+            if (el && settings[field]) el.value = settings[field];
+        });
+
         // Update number previews
         updateNumberPreviews();
 
@@ -408,6 +473,16 @@ function setupEventHandlers() {
     document.getElementById('advanced-toggle').addEventListener('click', () => {
         const content = document.getElementById('advanced-content');
         const chevron = document.getElementById('advanced-chevron');
+        const isOpen = content.style.display !== 'none';
+        content.style.display = isOpen ? 'none' : 'block';
+        chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
+        lucide.createIcons();
+    });
+
+    // Email settings toggle
+    document.getElementById('email-toggle').addEventListener('click', () => {
+        const content = document.getElementById('email-content');
+        const chevron = document.getElementById('email-chevron');
         const isOpen = content.style.display !== 'none';
         content.style.display = isOpen ? 'none' : 'block';
         chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
@@ -621,6 +696,13 @@ async function saveSettings() {
             default_payment_terms_days: parseInt(document.getElementById('default_payment_terms_days').value) || 30,
             default_btw_percentage: parseFloat(document.getElementById('default_btw_percentage').value) || 21,
             footer_text: document.getElementById('footer_text').value,
+            email_from_name: document.getElementById('email_from_name').value,
+            email_from_address: document.getElementById('email_from_address').value,
+            email_reply_to: document.getElementById('email_reply_to').value,
+            email_invoice_subject: document.getElementById('email_invoice_subject').value,
+            email_invoice_body: document.getElementById('email_invoice_body').value,
+            email_quote_subject: document.getElementById('email_quote_subject').value,
+            email_quote_body: document.getElementById('email_quote_body').value,
         };
 
         // Logo

@@ -73,6 +73,9 @@ class SimpleSupabaseClient:
                 headers=self.headers,
                 json=data
             )
+            if response.status_code >= 400:
+                print(f"[Supabase] INSERT {table} failed ({response.status_code}): {response.text}")
+                print(f"[Supabase] Payload keys: {list(data.keys())}")
             response.raise_for_status()
             result = response.json()
             return result[0] if result else None
@@ -96,8 +99,13 @@ class SimpleSupabaseClient:
                 params=params,
                 json=data
             )
+            if response.status_code >= 400:
+                print(f"[Supabase] UPDATE {table} failed ({response.status_code}): {response.text}")
+                print(f"[Supabase] Payload keys: {list(data.keys())}")
             response.raise_for_status()
             result = response.json()
+            if not result:
+                print(f"[Supabase] UPDATE {table} returned empty result (0 rows affected). Filters: {filters}")
             return result[0] if result else None
 
     async def select_filtered(self, table: str, columns: str = "*", eq_filters: dict = None, gte_filters: dict = None, order_by: tuple = None):
@@ -150,6 +158,27 @@ class SimpleSupabaseClient:
                 column, desc = order_by
                 params["order"] = f"{column}.{'desc' if desc else 'asc'}"
 
+            response = await client.get(
+                f"{self.rest_url}/{table}",
+                headers=self.headers,
+                params=params
+            )
+            response.raise_for_status()
+            return response.json()
+
+    async def select_lte(self, table: str, lte_column: str, lte_value: str, columns: str = "*", eq_filters: dict = None, order_by: tuple = None):
+        """
+        SELECT with a <= filter on one column plus optional eq filters.
+        Useful for scheduler queries like next_run_at <= now().
+        """
+        async with httpx.AsyncClient() as client:
+            params = {"select": columns, lte_column: f"lte.{lte_value}"}
+            if eq_filters:
+                for key, value in eq_filters.items():
+                    params[key] = f"eq.{value}"
+            if order_by:
+                column, desc = order_by
+                params["order"] = f"{column}.{'desc' if desc else 'asc'}"
             response = await client.get(
                 f"{self.rest_url}/{table}",
                 headers=self.headers,

@@ -15,10 +15,20 @@
 </head>
 <body>
     <div class="dashboard-container">
+        <!-- Mobile menu toggle -->
+        <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Menu">
+            <i data-lucide="menu" style="width: 22px; height: 22px;"></i>
+        </button>
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
         <!-- Sidebar Navigation -->
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <img src="/PNG/Logo Invoice Studio.png" alt="Invoice Studio" class="sidebar-logo">
+                <button class="notif-bell" id="notif-bell" title="Notifications" style="display: none;">
+                    <i data-lucide="bell" style="width: 20px; height: 20px;"></i>
+                    <span class="notif-badge" id="notif-badge"></span>
+                </button>
             </div>
 
             <nav class="sidebar-nav">
@@ -41,6 +51,14 @@
                 <a href="#/customers" class="menu-item" data-route="customers">
                     <i data-lucide="users"></i>
                     <span>Customers</span>
+                </a>
+                <a href="#/price-library" class="menu-item" data-route="price-library">
+                    <i data-lucide="tag"></i>
+                    <span>Price Library</span>
+                </a>
+                <a href="#/automations" class="menu-item" data-route="automations">
+                    <i data-lucide="repeat"></i>
+                    <span>Automations</span>
                 </a>
                 <a href="#/settings" class="menu-item" data-route="settings">
                     <i data-lucide="settings"></i>
@@ -82,10 +100,10 @@
     </div>
 
     <script defer src="/js/events.js"></script>
-    <script defer src="/js/auth.js?v=3"></script>
-    <script defer src="/js/api.js?v=3"></script>
+    <script defer src="/js/auth.js?v=4"></script>
+    <script defer src="/js/api.js?v=4"></script>
     <script defer src="/js/icons.js"></script>
-    <script defer src="/js/router.js"></script>
-    <script defer src="/js/dashboard.js"></script>
+    <script defer src="/js/router.js?v=4"></script>
+    <script defer src="/js/dashboard.js?v=5"></script>
 </body>
 </html>

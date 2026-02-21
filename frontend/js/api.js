@@ -40,6 +40,7 @@ class APIClient {
                 ...defaultHeaders,
                 ...options.headers,
             },
+            cache: 'no-store',
         };
 
         try {
@@ -265,6 +266,12 @@ class APIClient {
         return result;
     }
 
+    async generateDocumentPdf(documentId) {
+        return this.request(`/api/documents/${documentId}/generate-pdf`, {
+            method: 'POST',
+        });
+    }
+
     // ==================== AI Template ====================
 
     async generateTemplateFromImage(file, documentType = 'invoice') {
@@ -279,6 +286,167 @@ class APIClient {
 
     async getAiRateLimit() {
         return this.request('/api/ai/rate-limit');
+    }
+
+    // ==================== Price Items ====================
+
+    async getPriceItems(filters = {}) {
+        const params = new URLSearchParams();
+        if (filters.category) params.set('category', filters.category);
+        if (filters.q) params.set('q', filters.q);
+        if (filters.active !== undefined) params.set('active', filters.active);
+        const qs = params.toString();
+        return this.request(`/api/price-items${qs ? '?' + qs : ''}`);
+    }
+
+    async getPriceItemCategories() {
+        return this.request('/api/price-items/categories');
+    }
+
+    async getPriceItem(itemId) {
+        return this.request(`/api/price-items/${itemId}`);
+    }
+
+    async createPriceItem(data) {
+        const result = await this.request('/api/price-items', {
+            method: 'POST',
+            body: JSON.stringify(data),
+        });
+        if (window.appEvents) window.appEvents.emit(AppEvent.PRICE_ITEM_SAVED, { id: result?.id, action: 'create' });
+        return result;
+    }
+
+    async updatePriceItem(itemId, data) {
+        const result = await this.request(`/api/price-items/${itemId}`, {
+            method: 'PUT',
+            body: JSON.stringify(data),
+        });
+        if (window.appEvents) window.appEvents.emit(AppEvent.PRICE_ITEM_SAVED, { id: itemId, action: 'update' });
+        return result;
+    }
+
+    async deletePriceItem(itemId) {
+        const result = await this.request(`/api/price-items/${itemId}`, {
+            method: 'DELETE',
+        });
+        if (window.appEvents) window.appEvents.emit(AppEvent.PRICE_ITEM_DELETED, { id: itemId });
+        return result;
+    }
+
+    // ==================== Document Sending ====================
+
+    async sendDocument(documentId, data) {
+        return this.request(`/api/documents/${documentId}/send`, {
+            method: 'POST',
+            body: JSON.stringify(data),
+        });
+    }
+
+    async getSendHistory(documentId) {
+        return this.request(`/api/documents/${documentId}/sends`);
+    }
+
+    async sendReminder(documentId, data) {
+        return this.request(`/api/documents/${documentId}/send/reminder`, {
+            method: 'POST',
+            body: JSON.stringify(data),
+        });
+    }
+
+    async markDocumentSent(documentId, data = {}) {
+        return this.request(`/api/documents/${documentId}/mark-sent`, {
+            method: 'POST',
+            body: JSON.stringify(data),
+        });
+    }
+
+    // ==================== Activity ====================
+
+    async getDocumentActivity(documentId, limit = 20) {
+        return this.request(`/api/documents/${documentId}/activity?limit=${limit}`);
+    }
+
+    async getActivityFeed(limit = 20) {
+        return this.request(`/api/activity/feed?limit=${limit}`);
+    }
+
+    // ==================== Email Events ====================
+
+    async getEmailEvents(filters = {}) {
+        const params = new URLSearchParams();
+        if (filters.document_id) params.set('document_id', filters.document_id);
+        if (filters.processed !== undefined) params.set('processed', filters.processed);
+        if (filters.limit) params.set('limit', filters.limit);
+        const qs = params.toString();
+        return this.request(`/api/email-events${qs ? '?' + qs : ''}`);
+    }
+
+    async getUnreadEventCount() {
+        return this.request('/api/email-events/unread-count');
+    }
+
+    async dismissEmailEvent(eventId) {
+        return this.request(`/api/email-events/${eventId}/dismiss`, {
+            method: 'POST',
+        });
+    }
+
+    async dismissAllEmailEvents() {
+        return this.request('/api/email-events/dismiss-all', {
+            method: 'POST',
+        });
+    }
+
+    // ==================== Automations ====================
+
+    async getAutomations() {
+        return this.request('/api/automations');
+    }
+
+    async getAutomation(ruleId) {
+        return this.request(`/api/automations/${ruleId}`);
+    }
+
+    async createAutomation(data) {
+        return this.request('/api/automations', {
+            method: 'POST',
+            body: JSON.stringify(data),
+        });
+    }
+
+    async updateAutomation(ruleId, data) {
+        return this.request(`/api/automations/${ruleId}`, {
+            method: 'PUT',
+            body: JSON.stringify(data),
+        });
+    }
+
+    async deleteAutomation(ruleId) {
+        return this.request(`/api/automations/${ruleId}`, {
+            method: 'DELETE',
+        });
+    }
+
+    async pauseAutomation(ruleId) {
+        return this.request(`/api/automations/${ruleId}/pause`, {
+            method: 'POST',
+        });
+    }
+
+    async resumeAutomation(ruleId) {
+        return this.request(`/api/automations/${ruleId}/resume`, {
+            method: 'POST',
+        });
+    }
+
+    async triggerAutomation(ruleId) {
+        return this.request(`/api/automations/${ruleId}/trigger`, {
+            method: 'POST',
+        });
+    }
+
+    async getAutomationRuns(ruleId, limit = 20) {
+        return this.request(`/api/automations/${ruleId}/runs?limit=${limit}`);
     }
 
     // ==================== Statistics ====================

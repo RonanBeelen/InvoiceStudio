@@ -2,10 +2,11 @@
 Main FastAPI application for Invoice/Quote PDF Builder
 """
 import os
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, RedirectResponse
+from starlette.middleware.base import BaseHTTPMiddleware
 from dotenv import load_dotenv
 import requests
 
@@ -15,6 +16,12 @@ from .settings_routes import router as settings_router
 from .customer_routes import router as customer_router
 from .document_routes import router as document_router
 from .ai_template_routes import router as ai_router
+from .activity_routes import router as activity_router
+from .price_item_routes import router as price_item_router
+from .send_routes import router as send_router
+from .webhook_routes import router as webhook_router
+from .email_events_routes import router as email_events_router
+from .automation_routes import router as automation_router
 from .models import HealthResponse
 from .supabase_client import supabase
 
@@ -27,6 +34,16 @@ app = FastAPI(
     description="API for creating and managing invoice/quote templates and generating PDFs",
     version="1.0.0"
 )
+
+# No-cache middleware for API routes (prevents browser from serving stale data)
+class NoCacheAPIMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        if request.url.path.startswith("/api/") or request.url.path == "/health":
+            response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        return response
+
+app.add_middleware(NoCacheAPIMiddleware)
 
 # CORS middleware
 allowed_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:8000,http://127.0.0.1:8000").split(",")
@@ -45,6 +62,21 @@ app.include_router(settings_router)
 app.include_router(customer_router)
 app.include_router(document_router)
 app.include_router(ai_router)
+app.include_router(activity_router)
+app.include_router(price_item_router)
+app.include_router(send_router)
+app.include_router(webhook_router)
+app.include_router(email_events_router)
+app.include_router(automation_router)
+
+
+# Start scheduler background task on startup
+@app.on_event("startup")
+async def start_scheduler():
+    import asyncio
+    from .scheduler import scheduler_loop
+    scheduler_interval = int(os.getenv("SCHEDULER_INTERVAL_SECONDS", "300"))
+    asyncio.create_task(scheduler_loop(scheduler_interval))
 
 # Get environment variables
 NODE_SERVICE_HOST = os.getenv("NODE_SERVICE_HOST", "localhost")

@@ -71,3 +71,66 @@ class DashboardStatistics(BaseModel):
     paid_templates: int
     recent_templates: List[TemplateResponse]
     most_used_templates: List[TemplateStatistics]
+
+
+# ==================== Price Items ====================
+
+class PriceItemCreate(BaseModel):
+    """Model for creating a price item"""
+    name: str = Field(..., min_length=1, max_length=255)
+    description: Optional[str] = Field(None, max_length=1000)
+    category: str = Field("general", description="product, service, hourly_rate, travel, subscription, general")
+    unit_price: float = Field(..., ge=0)
+    unit: str = Field("stuk", description="stuk, uur, km, maand, dag")
+    btw_percentage: float = Field(21.0, ge=0, le=100)
+    default_quantity: float = Field(1.0, ge=0)
+    sku: Optional[str] = Field(None, max_length=100)
+
+class PriceItemUpdate(BaseModel):
+    """Model for updating a price item"""
+    name: Optional[str] = Field(None, min_length=1, max_length=255)
+    description: Optional[str] = None
+    category: Optional[str] = None
+    unit_price: Optional[float] = None
+    unit: Optional[str] = None
+    btw_percentage: Optional[float] = None
+    default_quantity: Optional[float] = None
+    sku: Optional[str] = None
+    is_active: Optional[bool] = None
+    sort_order: Optional[int] = None
+
+class PriceItemResponse(BaseModel):
+    """Model for price item responses"""
+    id: UUID
+    name: str
+    description: Optional[str]
+    category: str
+    unit_price: float
+    unit: str
+    btw_percentage: float
+    default_quantity: float
+    sku: Optional[str]
+    is_active: bool
+    sort_order: int
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+# ==================== Activity Log ====================
+
+class ActivityLogEntry(BaseModel):
+    """Model for activity log entries"""
+    id: UUID
+    user_id: UUID
+    document_id: Optional[UUID]
+    entity_type: str
+    entity_id: Optional[UUID]
+    action: str
+    detail: Dict[str, Any] = {}
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

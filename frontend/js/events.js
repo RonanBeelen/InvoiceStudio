@@ -24,4 +24,7 @@ window.AppEvent = {
     DOCUMENT_DELETED: 'app:document-deleted',
     CUSTOMER_SAVED: 'app:customer-saved',
     CUSTOMER_DELETED: 'app:customer-deleted',
+    PRICE_ITEM_SAVED: 'app:price-item-saved',
+    PRICE_ITEM_DELETED: 'app:price-item-deleted',
+    EMAIL_EVENT_RECEIVED: 'app:email-event-received',
 };

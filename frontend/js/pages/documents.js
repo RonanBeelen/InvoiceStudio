@@ -1,6 +1,8 @@
 /**
  * Documents Page - Document history, filtering, and status management
  */
+import { openSendModal } from '/js/components/send-modal.js';
+import { openActivityPanel } from '/js/components/activity-panel.js';
 
 let currentFilters = { type: '', status: '' };
 
@@ -200,11 +202,27 @@ async function loadDocuments() {
                 </td>
                 <td>
                     <div style="display: flex; gap: 4px;">
+                        <button class="doc-action-btn doc-edit-btn" data-id="${doc.id}" title="Edit">
+                            <i data-lucide="pencil" style="width: 16px; height: 16px;"></i>
+                        </button>
                         ${doc.pdf_url ? `
                             <a href="${doc.pdf_url}" target="_blank" class="doc-action-btn" title="Download PDF">
                                 <i data-lucide="download" style="width: 16px; height: 16px;"></i>
                             </a>
                         ` : ''}
+                        ${doc.status !== 'concept' || doc.pdf_url ? `
+                            <button class="doc-action-btn doc-send-btn" data-id="${doc.id}" title="${doc.sent_at ? 'Send Reminder' : 'Send'}">
+                                <i data-lucide="mail" style="width: 16px; height: 16px;"></i>
+                            </button>
+                        ` : ''}
+                        ${doc.document_type === 'invoice' && !doc.recurring_rule_id ? `
+                            <button class="doc-action-btn doc-recurring-btn" data-id="${doc.id}" title="Make Recurring">
+                                <i data-lucide="repeat" style="width: 16px; height: 16px;"></i>
+                            </button>
+                        ` : ''}
+                        <button class="doc-action-btn doc-activity-btn" data-id="${doc.id}" data-number="${escapeHtml(doc.document_number)}" title="Activity">
+                            <i data-lucide="clock" style="width: 16px; height: 16px;"></i>
+                        </button>
                         <button class="doc-action-btn doc-delete-btn" data-id="${doc.id}" data-number="${escapeHtml(doc.document_number)}" title="Delete">
                             <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
                         </button>
@@ -229,6 +247,47 @@ async function loadDocuments() {
                     showNotification('Failed to update status', 'error');
                     e.target.value = e.target.dataset.current;
                 }
+            });
+        });
+
+        // Edit handlers
+        tbody.querySelectorAll('.doc-edit-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const docId = btn.dataset.id;
+                window.location.hash = `#/new-document?edit=${docId}`;
+            });
+        });
+
+        // Send handlers
+        tbody.querySelectorAll('.doc-send-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const docId = btn.dataset.id;
+                const doc = documents.find(d => d.id === docId);
+                if (!doc) return;
+                openSendModal(doc, {
+                    onSent: () => loadDocuments(),
+                });
+            });
+        });
+
+        // Make Recurring handlers
+        tbody.querySelectorAll('.doc-recurring-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const docId = btn.dataset.id;
+                const doc = documents.find(d => d.id === docId);
+                if (!doc) return;
+                const { openCreateModal } = await import('/js/pages/automations.js');
+                openCreateModal({
+                    source_document_id: doc.id,
+                    name: `Recurring ${doc.document_number}`,
+                });
+            });
+        });
+
+        // Activity handlers
+        tbody.querySelectorAll('.doc-activity-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                openActivityPanel(btn.dataset.id, btn.dataset.number);
             });
         });
 
