@@ -9,10 +9,81 @@ import hashlib
 from fastapi import APIRouter, HTTPException, Request, status
 from .supabase_client import supabase
 from .activity_routes import _log_activity
+from .email_service import get_email_provider
 
 router = APIRouter()
 
 WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET", "")
+
+INTENT_LABELS = {
+    "payment_confirmation": "Betaling bevestigd",
+    "accepted": "Akkoord gegeven",
+    "rejected": "Afgewezen",
+    "question": "Vraag gesteld",
+}
+
+
+async def _notify_sender(user_id: str, document: dict, from_email: str,
+                         detected_intent: str | None, body_snippet: str):
+    """Send a notification email to the Invoice Studio user when a reply is received."""
+    try:
+        settings_rows = await supabase.select("company_settings", filters={"user_id": user_id})
+        if not settings_rows:
+            return
+        settings = settings_rows[0]
+        owner_email = settings.get("email_reply_to") or settings.get("email")
+        if not owner_email:
+            return
+
+        doc_number = document.get("document_number", "")
+        doc_type = "Factuur" if document.get("document_type") == "invoice" else "Offerte"
+        intent_label = INTENT_LABELS.get(detected_intent, "Reactie ontvangen")
+
+        subject = f"{intent_label} — {doc_type} {doc_number}"
+        body_text = (
+            f"Er is gereageerd op {doc_type.lower()} {doc_number}.\n\n"
+            f"Van: {from_email}\n"
+            f"Status: {intent_label}\n\n"
+            f"Bericht:\n{body_snippet}\n"
+        )
+        body_html = f"""<!DOCTYPE html>
+<html><head><meta charset="utf-8"></head>
+<body style="margin:0;padding:0;background:#f4f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f5f7;padding:32px 16px;">
+<tr><td align="center">
+<table width="520" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+  <tr><td style="background:#1a1a2e;padding:24px 32px;">
+    <span style="color:#fff;font-size:16px;font-weight:600;">Invoice Studio</span>
+  </td></tr>
+  <tr><td style="padding:28px 32px 16px;">
+    <p style="margin:0 0 6px;color:#5f6368;font-size:13px;">{doc_type} {doc_number}</p>
+    <p style="margin:0 0 20px;color:#1a1a2e;font-size:20px;font-weight:600;">{intent_label}</p>
+    <table width="100%" style="background:#f8f9fb;border-radius:6px;border:1px solid #e8eaed;">
+      <tr><td style="padding:16px 20px;">
+        <p style="margin:0 0 4px;color:#5f6368;font-size:12px;">Van</p>
+        <p style="margin:0 0 12px;color:#1a1a2e;font-size:14px;">{from_email}</p>
+        <p style="margin:0 0 4px;color:#5f6368;font-size:12px;">Bericht</p>
+        <p style="margin:0;color:#1a1a2e;font-size:14px;white-space:pre-wrap;">{body_snippet}</p>
+      </td></tr>
+    </table>
+  </td></tr>
+  <tr><td style="padding:16px 32px 24px;border-top:1px solid #e8eaed;">
+    <p style="margin:0;color:#9aa0a6;font-size:11px;">Dit is een automatische melding van Invoice Studio.</p>
+  </td></tr>
+</table>
+</td></tr></table>
+</body></html>"""
+
+        provider = get_email_provider()
+        await provider.send(
+            to_email=owner_email,
+            to_name=settings.get("company_name", ""),
+            subject=subject,
+            body_html=body_html,
+            body_text=body_text,
+        )
+    except Exception as e:
+        print(f"[Webhook] Failed to send reply notification: {e}")
 
 
 def _verify_webhook(request: Request, body: bytes):
@@ -246,6 +317,12 @@ async def resend_webhook(request: Request):
                 "event_type": event_type,
             }
         )
+
+        # Notify the sender about the reply
+        if is_reply:
+            doc_rows = await supabase.select("documents", filters={"id": document_id, "user_id": user_id})
+            doc = doc_rows[0] if doc_rows else {}
+            await _notify_sender(user_id, doc, str(from_email), detected_intent, body_snippet)
     elif user_id and document_id:
         # Log non-reply events too (delivered, opened, bounced)
         await _log_activity(

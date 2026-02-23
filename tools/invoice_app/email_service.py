@@ -156,11 +156,70 @@ def build_document_email(document: dict, customer: dict, settings: dict) -> dict
         subject = subject.replace(placeholder, value)
         body_text = body_text.replace(placeholder, value)
 
-    # Simple HTML version: wrap in paragraphs
-    body_html = "<br>".join(
-        f"<p>{line}</p>" if line.strip() else "<br>"
+    # Professional HTML email
+    body_paragraphs = "".join(
+        f'<p style="margin:0 0 12px 0;line-height:1.6;">{line}</p>' if line.strip()
+        else '<br>'
         for line in body_text.split("\n")
     )
+
+    doc_number = document.get("document_number", "")
+    type_label = "Factuur" if is_invoice else "Offerte"
+    company_name = settings.get("company_name", "")
+    pdf_url = document.get("pdf_url", "")
+
+    body_html = f"""<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#f4f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f5f7;padding:32px 16px;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+
+  <!-- Header -->
+  <tr><td style="background:#1a1a2e;padding:28px 40px;">
+    <span style="color:#ffffff;font-size:18px;font-weight:600;">{company_name}</span>
+  </td></tr>
+
+  <!-- Body -->
+  <tr><td style="padding:36px 40px 24px;">
+    {body_paragraphs}
+  </td></tr>
+
+  <!-- Document summary -->
+  <tr><td style="padding:0 40px 32px;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8f9fb;border-radius:6px;border:1px solid #e8eaed;">
+      <tr><td style="padding:20px 24px;">
+        <table width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td style="color:#5f6368;font-size:13px;padding-bottom:4px;">{type_label}</td>
+            <td align="right" style="color:#5f6368;font-size:13px;padding-bottom:4px;">Bedrag</td>
+          </tr>
+          <tr>
+            <td style="color:#1a1a2e;font-size:16px;font-weight:600;">{doc_number}</td>
+            <td align="right" style="color:#1a1a2e;font-size:16px;font-weight:600;">{total_str}</td>
+          </tr>
+          {"<tr><td colspan='2' style='padding-top:8px;color:#5f6368;font-size:13px;'>Vervaldatum: " + format_date(document.get('due_date')) + "</td></tr>" if document.get('due_date') else ""}
+        </table>
+      </td></tr>
+    </table>
+  </td></tr>
+
+  <!-- CTA button -->
+  {f'''<tr><td style="padding:0 40px 36px;" align="center">
+    <a href="{pdf_url}" style="display:inline-block;background:#1a1a2e;color:#ffffff;text-decoration:none;padding:12px 32px;border-radius:6px;font-size:14px;font-weight:600;">Bekijk {type_label}</a>
+  </td></tr>''' if pdf_url else ""}
+
+  <!-- Footer -->
+  <tr><td style="padding:24px 40px;border-top:1px solid #e8eaed;">
+    <p style="margin:0;color:#9aa0a6;font-size:12px;line-height:1.5;">
+      Verzonden via Invoice Studio namens {company_name}
+    </p>
+  </td></tr>
+
+</table>
+</td></tr>
+</table>
+</body></html>"""
 
     return {
         "subject": subject,

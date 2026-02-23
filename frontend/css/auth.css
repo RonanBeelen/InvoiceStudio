@@ -439,7 +439,7 @@ body {
 @media (max-width: 700px) {
     body {
         padding: 0;
-        background: var(--color-background);
+        background: var(--color-dark-green);
     }
 
     .auth-layout {
@@ -448,12 +448,12 @@ body {
         border-radius: 0;
     }
 
-    /* Left panel: logo only */
+    /* Left panel: logo on green background */
     .auth-left {
         width: 100%;
         min-width: unset;
-        padding: 32px 24px 8px;
-        background: var(--color-background);
+        padding: 20px 24px 12px;
+        background: var(--color-dark-green);
         align-items: center;
         text-align: center;
         min-height: auto;
@@ -468,7 +468,7 @@ body {
 
     .auth-left-logo {
         max-width: 160px;
-        margin-bottom: 8px;
+        margin-bottom: 0;
     }
 
     /* Hide heading and subtext */
@@ -482,47 +482,50 @@ body {
         display: none;
     }
 
-    /* Right panel: form area */
+    /* Right panel: white card with rounded corners on green bg */
     .auth-right {
-        padding: 16px 24px 24px;
+        padding: 24px 24px 24px;
         background: var(--color-background);
-        border-radius: 0;
+        border-radius: var(--radius-xl);
         flex: 1;
+        margin: 0 16px;
     }
 
     .auth-title {
         font-size: 24px;
         text-align: center;
+        margin-bottom: 20px;
     }
 
     .auth-card {
         max-width: 100%;
     }
 
-    /* Mobile footer at bottom */
+    /* Mobile footer on green background */
     .auth-mobile-footer {
         display: flex;
         flex-direction: column;
         align-items: center;
         gap: 6px;
-        padding: 24px;
+        padding: 20px 24px;
         font-size: 13px;
-        color: var(--color-text-secondary);
+        color: rgba(255, 255, 255, 0.6);
+        background: var(--color-dark-green);
     }
 
     .auth-mobile-footer span {
         font-weight: var(--font-weight-semibold);
-        color: var(--color-text-primary);
+        color: var(--color-white);
         margin-bottom: 4px;
     }
 
     .auth-mobile-footer a {
-        color: var(--color-text-secondary);
+        color: rgba(255, 255, 255, 0.6);
         text-decoration: none;
         transition: color 0.2s;
     }
 
     .auth-mobile-footer a:hover {
-        color: var(--color-shamrock);
+        color: var(--color-white);
     }
 }

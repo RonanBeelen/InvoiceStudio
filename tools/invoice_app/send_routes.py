@@ -1,6 +1,8 @@
 """
 Document Send Routes — email sending, send history, reminders, manual mark-as-sent.
 """
+import base64
+import httpx
 from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, status, Depends
 from .supabase_client import supabase
@@ -10,6 +12,26 @@ from .activity_routes import _log_activity
 from .settings_routes import get_default_settings
 
 router = APIRouter()
+
+
+async def _fetch_pdf_attachment(doc: dict) -> list | None:
+    """Download PDF from storage URL and return as Resend attachment."""
+    pdf_url = doc.get("pdf_url")
+    if not pdf_url:
+        return None
+    try:
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(pdf_url, timeout=15)
+            resp.raise_for_status()
+        doc_number = doc.get("document_number", "document")
+        filename = f"{doc_number}.pdf"
+        return [{
+            "filename": filename,
+            "content": base64.b64encode(resp.content).decode("utf-8"),
+        }]
+    except Exception as e:
+        print(f"[Send] Failed to fetch PDF attachment: {e}")
+        return None
 
 
 async def _get_document_with_customer(document_id: str, user_id: str):
@@ -64,6 +86,9 @@ async def send_document(document_id: str, send_data: dict, user: dict = Depends(
         body_text = send_data.get("body_text", "").strip() or email_content["body_text"]
         body_html = send_data.get("body_html", "").strip() or email_content["body_html"]
 
+        # Fetch PDF attachment
+        attachments = await _fetch_pdf_attachment(doc)
+
         # Send via provider
         provider = get_email_provider()
         result = await provider.send(
@@ -75,6 +100,7 @@ async def send_document(document_id: str, send_data: dict, user: dict = Depends(
             from_email=settings.get("email_from_address"),
             from_name=settings.get("email_from_name") or settings.get("company_name"),
             reply_to=settings.get("email_reply_to") or settings.get("email"),
+            attachments=attachments,
         )
 
         now = datetime.now(timezone.utc).isoformat()
@@ -178,6 +204,9 @@ async def send_reminder(document_id: str, send_data: dict, user: dict = Depends(
         body_text = send_data.get("body_text", "").strip() or email_content["body_text"]
         body_html = send_data.get("body_html", "").strip() or email_content["body_html"]
 
+        # Fetch PDF attachment
+        attachments = await _fetch_pdf_attachment(doc)
+
         provider = get_email_provider()
         result = await provider.send(
             to_email=recipient_email,
@@ -188,6 +217,7 @@ async def send_reminder(document_id: str, send_data: dict, user: dict = Depends(
             from_email=settings.get("email_from_address"),
             from_name=settings.get("email_from_name") or settings.get("company_name"),
             reply_to=settings.get("email_reply_to") or settings.get("email"),
+            attachments=attachments,
         )
 
         now = datetime.now(timezone.utc).isoformat()
