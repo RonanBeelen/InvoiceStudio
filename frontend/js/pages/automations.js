@@ -1,6 +1,9 @@
 /**
  * Automations Page — Manage recurring invoice rules
  */
+import { showConfirmDialog } from '/js/components/confirm-dialog.js';
+
+let showingArchived = false;
 
 function showNotification(message, type = 'success') {
     const existing = document.querySelector('.settings-notification');
@@ -64,9 +67,14 @@ export async function initAutomations() {
                         Manage recurring invoices and automated document generation
                     </p>
                 </div>
-                <button class="btn-primary" id="new-automation-btn" style="display: flex; align-items: center; gap: var(--space-sm); padding: var(--space-md) var(--space-xl);">
-                    <i data-lucide="plus"></i> New Automation
-                </button>
+                <div style="display: flex; gap: var(--space-md);">
+                    <button class="btn-secondary" id="toggle-archived-btn" style="display: flex; align-items: center; gap: var(--space-sm); padding: var(--space-md) var(--space-xl);">
+                        <i data-lucide="archive"></i> Archived
+                    </button>
+                    <button class="btn-primary" id="new-automation-btn" style="display: flex; align-items: center; gap: var(--space-sm); padding: var(--space-md) var(--space-xl);">
+                        <i data-lucide="plus"></i> New Automation
+                    </button>
+                </div>
             </div>
 
             <!-- Loading -->
@@ -97,6 +105,22 @@ export async function initAutomations() {
 
     document.getElementById('new-automation-btn').addEventListener('click', () => openCreateModal());
 
+    document.getElementById('toggle-archived-btn').addEventListener('click', () => {
+        showingArchived = !showingArchived;
+        const btn = document.getElementById('toggle-archived-btn');
+        if (showingArchived) {
+            btn.classList.remove('btn-secondary');
+            btn.classList.add('btn-warning');
+            btn.innerHTML = '<i data-lucide="arrow-left"></i> Back to Active';
+        } else {
+            btn.classList.remove('btn-warning');
+            btn.classList.add('btn-secondary');
+            btn.innerHTML = '<i data-lucide="archive"></i> Archived';
+        }
+        lucide.createIcons();
+        loadAutomations();
+    });
+
     await loadAutomations();
 }
 
@@ -110,7 +134,7 @@ async function loadAutomations() {
     empty.style.display = 'none';
 
     try {
-        const rules = await api.getAutomations();
+        const rules = await api.getAutomations(showingArchived);
 
         loading.style.display = 'none';
 
@@ -122,7 +146,7 @@ async function loadAutomations() {
 
         list.style.display = 'block';
         list.innerHTML = `
-            <div class="auto-grid">
+            <div class="card-grid">
                 ${rules.map(rule => {
                     const freqLabel = FREQ_LABELS[rule.frequency] || rule.frequency;
                     const statusClass = rule.is_active ? 'badge-active' : 'badge-paused';
@@ -130,41 +154,44 @@ async function loadAutomations() {
                     const nextRun = rule.is_active ? formatDate(rule.next_run_at) : '—';
 
                     return `
-                        <div class="auto-card dashboard-section">
-                            <div class="auto-card-header">
-                                <div class="auto-card-title">
-                                    <i data-lucide="repeat" style="width: 18px; height: 18px; color: var(--color-shamrock);"></i>
-                                    <strong>${escapeHtml(rule.name)}</strong>
+                        <div class="card-sectioned dashboard-section">
+                            <div class="card-header" style="padding-bottom: var(--space-sm);">
+                                <div class="card-title" style="flex-direction: column; align-items: flex-start; gap: 2px; min-width: 0; flex: 1;">
+                                    <div style="display: flex; align-items: center; gap: var(--space-sm);">
+                                        <i data-lucide="repeat" style="width: 18px; height: 18px; color: var(--color-shamrock); flex-shrink: 0;"></i>
+                                        <strong style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(rule.name)}</strong>
+                                    </div>
+                                    ${rule.source_document_number ? `<span style="font-size: 12px; color: var(--color-shamrock); font-weight: var(--font-weight-semibold); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;">${escapeHtml(rule.source_document_number)}</span>` : ''}
                                 </div>
                                 <span class="status-badge ${statusClass}">${statusLabel}</span>
                             </div>
-                            <div class="auto-card-body">
-                                <div class="auto-card-row">
-                                    <span class="auto-card-label">Frequency</span>
+                            <div class="card-body" style="padding-top: var(--space-sm);">
+                                <div class="card-row">
+                                    <span class="card-label">Frequency</span>
                                     <span class="auto-freq-badge">${freqLabel}</span>
                                 </div>
-                                <div class="auto-card-row">
-                                    <span class="auto-card-label">Next run</span>
+                                <div class="card-row">
+                                    <span class="card-label">Next run</span>
                                     <span>${nextRun}</span>
                                 </div>
-                                <div class="auto-card-row">
-                                    <span class="auto-card-label">Last run</span>
+                                <div class="card-row">
+                                    <span class="card-label">Last run</span>
                                     <span>${rule.last_run_at ? relativeTime(rule.last_run_at) : 'Never'}</span>
                                 </div>
-                                <div class="auto-card-row">
-                                    <span class="auto-card-label">Runs</span>
+                                <div class="card-row">
+                                    <span class="card-label">Runs</span>
                                     <span>${rule.occurrences_count || 0}${rule.max_occurrences ? ' / ' + rule.max_occurrences : ''}</span>
                                 </div>
                                 ${rule.auto_send ? `
-                                    <div class="auto-card-row">
-                                        <span class="auto-card-label">Auto-send</span>
+                                    <div class="card-row">
+                                        <span class="card-label">Auto-send</span>
                                         <span style="color: var(--color-shamrock);">
                                             <i data-lucide="check" style="width: 14px; height: 14px;"></i> Enabled
                                         </span>
                                     </div>
                                 ` : ''}
                             </div>
-                            <div class="auto-card-actions">
+                            <div class="card-actions">
                                 ${rule.is_active ? `
                                     <button class="btn-secondary auto-trigger-btn" data-id="${rule.id}" style="font-size: 12px; padding: 4px 12px;">
                                         <i data-lucide="play" style="width: 14px; height: 14px;"></i> Run Now
@@ -183,6 +210,15 @@ async function loadAutomations() {
                                 <button class="btn-secondary auto-edit-btn" data-id="${rule.id}" style="font-size: 12px; padding: 4px 12px;">
                                     <i data-lucide="pencil" style="width: 14px; height: 14px;"></i>
                                 </button>
+                                ${showingArchived ? `
+                                    <button class="btn-primary auto-restore-btn" data-id="${rule.id}" style="font-size: 12px; padding: 4px 12px;">
+                                        <i data-lucide="archive-restore" style="width: 14px; height: 14px;"></i> Restore
+                                    </button>
+                                ` : `
+                                    <button class="btn-secondary auto-archive-btn" data-id="${rule.id}" data-name="${escapeHtml(rule.name)}" style="font-size: 12px; padding: 4px 12px; color: #d69e2e;">
+                                        <i data-lucide="archive" style="width: 14px; height: 14px;"></i>
+                                    </button>
+                                `}
                                 <button class="btn-secondary auto-delete-btn" data-id="${rule.id}" data-name="${escapeHtml(rule.name)}" style="font-size: 12px; padding: 4px 12px; color: var(--color-error);">
                                     <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>
                                 </button>
@@ -257,13 +293,53 @@ function bindActions(rules) {
     document.querySelectorAll('.auto-delete-btn').forEach(btn => {
         btn.addEventListener('click', async () => {
             const name = btn.dataset.name;
-            if (!confirm(`Delete automation "${name}"?`)) return;
+            const confirmed = await showConfirmDialog({
+                title: 'Delete Automation',
+                message: `Permanently delete "${name}"? This action cannot be undone.`,
+                confirmLabel: 'Delete',
+                variant: 'danger',
+            });
+            if (!confirmed) return;
             try {
                 await api.deleteAutomation(btn.dataset.id);
                 showNotification('Automation deleted');
                 await loadAutomations();
             } catch (e) {
                 showNotification('Failed to delete', 'error');
+            }
+        });
+    });
+
+    // Archive
+    document.querySelectorAll('.auto-archive-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const name = btn.dataset.name;
+            const confirmed = await showConfirmDialog({
+                title: 'Archive Automation',
+                message: `Archive "${name}"? It will be hidden but can be restored later.`,
+                confirmLabel: 'Archive',
+                variant: 'warning',
+            });
+            if (!confirmed) return;
+            try {
+                await api.archiveAutomation(btn.dataset.id);
+                showNotification('Automation archived');
+                await loadAutomations();
+            } catch (e) {
+                showNotification('Failed to archive', 'error');
+            }
+        });
+    });
+
+    // Restore
+    document.querySelectorAll('.auto-restore-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            try {
+                await api.restoreAutomation(btn.dataset.id);
+                showNotification('Automation restored');
+                await loadAutomations();
+            } catch (e) {
+                showNotification('Failed to restore', 'error');
             }
         });
     });

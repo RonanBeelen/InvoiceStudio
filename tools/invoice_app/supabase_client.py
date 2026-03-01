@@ -51,7 +51,10 @@ class SimpleSupabaseClient:
 
             if filters:
                 for key, value in filters.items():
-                    params[key] = f"eq.{value}"
+                    if isinstance(value, bool):
+                        params[key] = f"eq.{str(value).lower()}"
+                    else:
+                        params[key] = f"eq.{value}"
 
             if order_by:
                 column, desc = order_by
@@ -80,6 +83,19 @@ class SimpleSupabaseClient:
             result = response.json()
             return result[0] if result else None
 
+    async def insert_many(self, table: str, data_list: list):
+        """INSERT multiple rows in a single request. PostgREST supports array payloads natively."""
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                f"{self.rest_url}/{table}",
+                headers=self.headers,
+                json=data_list
+            )
+            if response.status_code >= 400:
+                print(f"[Supabase] INSERT_MANY {table} failed ({response.status_code}): {response.text}")
+            response.raise_for_status()
+            return response.json()
+
     async def update(self, table: str, data: dict, filters: dict):
         """
         UPDATE query
@@ -91,7 +107,10 @@ class SimpleSupabaseClient:
         async with httpx.AsyncClient() as client:
             params = {}
             for key, value in filters.items():
-                params[key] = f"eq.{value}"
+                if isinstance(value, bool):
+                    params[key] = f"eq.{str(value).lower()}"
+                else:
+                    params[key] = f"eq.{value}"
 
             response = await client.patch(
                 f"{self.rest_url}/{table}",
@@ -122,7 +141,10 @@ class SimpleSupabaseClient:
             params = {"select": columns}
             if eq_filters:
                 for key, value in eq_filters.items():
-                    params[key] = f"eq.{value}"
+                    if isinstance(value, bool):
+                        params[key] = f"eq.{str(value).lower()}"
+                    else:
+                        params[key] = f"eq.{value}"
             if gte_filters:
                 for key, value in gte_filters.items():
                     params[key] = f"gte.{value}"
@@ -152,7 +174,10 @@ class SimpleSupabaseClient:
 
             if filters:
                 for key, value in filters.items():
-                    params[key] = f"eq.{value}"
+                    if isinstance(value, bool):
+                        params[key] = f"eq.{str(value).lower()}"
+                    else:
+                        params[key] = f"eq.{value}"
 
             if order_by:
                 column, desc = order_by
@@ -175,11 +200,37 @@ class SimpleSupabaseClient:
             params = {"select": columns, lte_column: f"lte.{lte_value}"}
             if eq_filters:
                 for key, value in eq_filters.items():
-                    params[key] = f"eq.{value}"
+                    if isinstance(value, bool):
+                        params[key] = f"eq.{str(value).lower()}"
+                    else:
+                        params[key] = f"eq.{value}"
             if order_by:
                 column, desc = order_by
                 params["order"] = f"{column}.{'desc' if desc else 'asc'}"
             response = await client.get(
+                f"{self.rest_url}/{table}",
+                headers=self.headers,
+                params=params
+            )
+            response.raise_for_status()
+            return response.json()
+
+    async def delete_in(self, table: str, column: str, values: list, extra_filters: dict = None):
+        """
+        DELETE rows where column value is IN a list.
+        Uses PostgREST in filter: column=in.(val1,val2,...)
+        """
+        if not values:
+            return []
+        async with httpx.AsyncClient() as client:
+            params = {column: f"in.({','.join(str(v) for v in values)})"}
+            if extra_filters:
+                for key, value in extra_filters.items():
+                    if isinstance(value, bool):
+                        params[key] = f"eq.{str(value).lower()}"
+                    else:
+                        params[key] = f"eq.{value}"
+            response = await client.delete(
                 f"{self.rest_url}/{table}",
                 headers=self.headers,
                 params=params
@@ -197,7 +248,10 @@ class SimpleSupabaseClient:
         async with httpx.AsyncClient() as client:
             params = {}
             for key, value in filters.items():
-                params[key] = f"eq.{value}"
+                if isinstance(value, bool):
+                    params[key] = f"eq.{str(value).lower()}"
+                else:
+                    params[key] = f"eq.{value}"
 
             response = await client.delete(
                 f"{self.rest_url}/{table}",

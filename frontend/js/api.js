@@ -89,8 +89,8 @@ class APIClient {
      * Get all templates
      * @returns {Promise<Array>} List of templates
      */
-    async getTemplates() {
-        return this.request('/api/templates');
+    async getTemplates(archived = false) {
+        return this.request(`/api/templates?archived=${archived}`);
     }
 
     /**
@@ -144,6 +144,18 @@ class APIClient {
         return result;
     }
 
+    async archiveTemplate(templateId) {
+        const result = await this.request(`/api/templates/archive/${templateId}`, { method: 'POST' });
+        if (window.appEvents) window.appEvents.emit(AppEvent.TEMPLATE_DELETED, { id: templateId, action: 'archive' });
+        return result;
+    }
+
+    async restoreTemplate(templateId) {
+        const result = await this.request(`/api/templates/restore/${templateId}`, { method: 'POST' });
+        if (window.appEvents) window.appEvents.emit(AppEvent.TEMPLATE_SAVED, { id: templateId, action: 'restore' });
+        return result;
+    }
+
     /**
      * Get a PDF preview for a template
      * @param {string} templateId - UUID of the template
@@ -190,9 +202,12 @@ class APIClient {
 
     // ==================== Customers ====================
 
-    async getCustomers(query = '') {
-        const params = query ? `?q=${encodeURIComponent(query)}` : '';
-        return this.request(`/api/customers${params}`);
+    async getCustomers(query = '', active = true) {
+        const params = new URLSearchParams();
+        if (query) params.set('q', query);
+        if (active !== null) params.set('active', active);
+        const qs = params.toString();
+        return this.request(`/api/customers${qs ? '?' + qs : ''}`);
     }
 
     async getCustomer(customerId) {
@@ -217,11 +232,46 @@ class APIClient {
         return result;
     }
 
+    async bulkDeleteCustomers(ids) {
+        const result = await this.request('/api/customers/bulk-delete', {
+            method: 'POST',
+            body: JSON.stringify({ ids }),
+        });
+        if (window.appEvents) window.appEvents.emit(AppEvent.CUSTOMER_DELETED, { action: 'bulk_delete', count: result?.deleted });
+        return result;
+    }
+
     async deleteCustomer(customerId) {
         const result = await this.request(`/api/customers/${customerId}`, {
             method: 'DELETE',
         });
         if (window.appEvents) window.appEvents.emit(AppEvent.CUSTOMER_DELETED, { id: customerId });
+        return result;
+    }
+
+    async archiveCustomer(customerId) {
+        const result = await this.request(`/api/customers/archive/${customerId}`, {
+            method: 'POST',
+        });
+        if (window.appEvents) window.appEvents.emit(AppEvent.CUSTOMER_DELETED, { id: customerId, action: 'archive' });
+        return result;
+    }
+
+    async bulkArchiveCustomers(ids) {
+        const result = await this.request('/api/customers/bulk-archive', {
+            method: 'POST',
+            body: JSON.stringify({ ids }),
+        });
+        if (window.appEvents) window.appEvents.emit(AppEvent.CUSTOMER_DELETED, { action: 'bulk_archive', count: result?.archived });
+        return result;
+    }
+
+    async bulkCreateCustomers(customers) {
+        const result = await this.request('/api/customers/bulk-create', {
+            method: 'POST',
+            body: JSON.stringify({ customers }),
+        });
+        if (window.appEvents) window.appEvents.emit(AppEvent.CUSTOMER_SAVED, { action: 'bulk_create', count: result?.created });
         return result;
     }
 
@@ -232,6 +282,7 @@ class APIClient {
         if (filters.type) params.set('type', filters.type);
         if (filters.status) params.set('status', filters.status);
         if (filters.customer_id) params.set('customer_id', filters.customer_id);
+        if (filters.archived !== undefined) params.set('archived', filters.archived);
         const qs = params.toString();
         return this.request(`/api/documents${qs ? '?' + qs : ''}`);
     }
@@ -263,6 +314,18 @@ class APIClient {
             method: 'DELETE',
         });
         if (window.appEvents) window.appEvents.emit(AppEvent.DOCUMENT_DELETED, { id: documentId });
+        return result;
+    }
+
+    async archiveDocument(documentId) {
+        const result = await this.request(`/api/documents/archive/${documentId}`, { method: 'POST' });
+        if (window.appEvents) window.appEvents.emit(AppEvent.DOCUMENT_DELETED, { id: documentId, action: 'archive' });
+        return result;
+    }
+
+    async restoreDocument(documentId) {
+        const result = await this.request(`/api/documents/restore/${documentId}`, { method: 'POST' });
+        if (window.appEvents) window.appEvents.emit(AppEvent.DOCUMENT_SAVED, { id: documentId, action: 'restore' });
         return result;
     }
 
@@ -333,6 +396,41 @@ class APIClient {
         return result;
     }
 
+    async bulkDeletePriceItems(ids) {
+        const result = await this.request('/api/price-items/bulk-delete', {
+            method: 'POST',
+            body: JSON.stringify({ ids }),
+        });
+        if (window.appEvents) window.appEvents.emit(AppEvent.PRICE_ITEM_DELETED, { action: 'bulk_delete', count: result?.deleted });
+        return result;
+    }
+
+    async archivePriceItem(itemId) {
+        const result = await this.request(`/api/price-items/archive/${itemId}`, {
+            method: 'POST',
+        });
+        if (window.appEvents) window.appEvents.emit(AppEvent.PRICE_ITEM_DELETED, { id: itemId, action: 'archive' });
+        return result;
+    }
+
+    async bulkArchivePriceItems(ids) {
+        const result = await this.request('/api/price-items/bulk-archive', {
+            method: 'POST',
+            body: JSON.stringify({ ids }),
+        });
+        if (window.appEvents) window.appEvents.emit(AppEvent.PRICE_ITEM_DELETED, { action: 'bulk_archive', count: result?.archived });
+        return result;
+    }
+
+    async bulkCreatePriceItems(items) {
+        const result = await this.request('/api/price-items/bulk', {
+            method: 'POST',
+            body: JSON.stringify({ items }),
+        });
+        if (window.appEvents) window.appEvents.emit(AppEvent.PRICE_ITEM_SAVED, { action: 'bulk_create', count: result?.created });
+        return result;
+    }
+
     // ==================== Document Sending ====================
 
     async sendDocument(documentId, data) {
@@ -399,8 +497,8 @@ class APIClient {
 
     // ==================== Automations ====================
 
-    async getAutomations() {
-        return this.request('/api/automations');
+    async getAutomations(archived = false) {
+        return this.request(`/api/automations?archived=${archived}`);
     }
 
     async getAutomation(ruleId) {
@@ -425,6 +523,14 @@ class APIClient {
         return this.request(`/api/automations/${ruleId}`, {
             method: 'DELETE',
         });
+    }
+
+    async archiveAutomation(ruleId) {
+        return this.request(`/api/automations/archive/${ruleId}`, { method: 'POST' });
+    }
+
+    async restoreAutomation(ruleId) {
+        return this.request(`/api/automations/restore/${ruleId}`, { method: 'POST' });
     }
 
     async pauseAutomation(ruleId) {

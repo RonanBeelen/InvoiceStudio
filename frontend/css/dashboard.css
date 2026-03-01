@@ -96,18 +96,27 @@
 
 /* Sidebar Footer */
 .sidebar-footer {
-    padding: var(--space-lg);
+    padding: var(--space-md) var(--space-lg);
     border-top: 1px solid rgba(255, 255, 255, 0.15);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
 }
 
-/* User info in sidebar footer */
-.user-info {
+/* Account trigger button */
+.account-trigger {
     display: flex;
     align-items: center;
     gap: var(--space-sm);
-    padding-bottom: var(--space-md);
-    margin-bottom: var(--space-sm);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: background 0.15s;
+    position: relative;
+}
+
+.account-trigger:hover {
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .user-avatar {
@@ -127,6 +136,13 @@
     color: var(--color-white);
 }
 
+.user-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
 .user-details {
     flex: 1;
     min-width: 0;
@@ -141,25 +157,84 @@
     display: block;
 }
 
-.logout-btn {
-    background: none;
-    border: none;
+.account-chevron {
+    width: 16px;
+    height: 16px;
+    color: rgba(255, 255, 255, 0.5);
+    flex-shrink: 0;
+    transition: transform 0.2s;
+}
+
+.account-trigger.open .account-chevron {
+    transform: rotate(180deg);
+}
+
+/* Account popover */
+.account-popover {
+    position: absolute;
+    bottom: 100%;
+    left: var(--space-md);
+    right: var(--space-md);
+    margin-bottom: var(--space-sm);
+    background: var(--color-white);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    z-index: 500;
+    animation: popoverSlideUp 0.15s ease;
+}
+
+@keyframes popoverSlideUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.account-popover-menu {
+    padding: var(--space-xs) 0;
+}
+
+.account-popover-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-sm) var(--space-lg);
+    font-size: 14px;
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
     cursor: pointer;
-    padding: var(--space-xs);
-    border-radius: var(--radius-sm);
-    color: rgba(255, 255, 255, 0.6);
-    transition: all var(--transition-fast);
+    transition: background 0.1s;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-family: var(--font-family);
+    text-decoration: none;
+}
+
+.account-popover-item:hover {
+    background: var(--gray-50);
+}
+
+.account-popover-item i {
+    width: 18px;
+    height: 18px;
+    color: var(--color-text-secondary);
     flex-shrink: 0;
 }
 
-.logout-btn:hover {
-    color: var(--color-error);
-    background: rgba(255, 255, 255, 0.1);
+.account-popover-divider {
+    height: 1px;
+    background: var(--gray-100);
+    margin: var(--space-xs) 0;
 }
 
-.logout-btn i {
-    width: 16px;
-    height: 16px;
+.account-popover-item.logout-item:hover {
+    background: rgba(229, 62, 62, 0.06);
+    color: var(--color-error);
+}
+
+.account-popover-item.logout-item:hover i {
+    color: var(--color-error);
 }
 
 .status-indicator {
@@ -413,11 +488,13 @@
 .template-actions {
     display: flex;
     gap: var(--space-sm);
+    justify-content: flex-end;
 }
 
 .action-btn {
-    flex: 1;
-    padding: var(--space-sm) var(--space-md);
+    width: 36px;
+    height: 36px;
+    padding: 0;
     border: none;
     border-radius: var(--radius-md);
     font-size: 14px;
@@ -427,7 +504,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--space-xs);
 }
 
 .edit-btn {
@@ -437,6 +513,16 @@
 
 .edit-btn:hover {
     background: var(--color-mountain-meadow);
+    transform: translateY(-2px);
+}
+
+.archive-btn {
+    background: #d69e2e;
+    color: var(--color-white);
+}
+
+.archive-btn:hover {
+    background: #b7791f;
     transform: translateY(-2px);
 }
 
@@ -678,6 +764,14 @@
 
 .template-preview {
     position: relative;
+}
+
+/* Preview inside sectioned card: flush with card edges */
+.card-sectioned .template-preview {
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    margin-bottom: 0;
+    border: none;
+    border-bottom: 1px solid var(--gray-100);
 }
 
 /* Prevent horizontal scroll in designer */
@@ -994,7 +1088,10 @@
 /* ========== Shared Button Styles ========== */
 
 .btn-secondary {
-    padding: var(--space-sm) var(--space-lg);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 19px;
     border: 2px solid var(--gray-300);
     border-radius: var(--radius-md);
     background: var(--color-white);
@@ -1012,7 +1109,10 @@
 }
 
 .btn-primary {
-    padding: var(--space-sm) var(--space-lg);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 19px;
     border: none;
     border-radius: var(--radius-md);
     background: var(--color-shamrock);
@@ -1022,6 +1122,13 @@
     font-size: 14px;
     font-family: var(--font-family);
     transition: all 0.15s ease;
+}
+
+.btn-primary svg,
+.btn-secondary svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
 }
 
 .btn-primary:hover {
@@ -1305,6 +1412,16 @@
 .doc-delete-btn:hover {
     background: rgba(229, 62, 62, 0.1);
     color: var(--color-error);
+}
+
+.doc-archive-btn:hover {
+    background: rgba(214, 158, 46, 0.1);
+    color: #d69e2e;
+}
+
+.doc-restore-btn:hover {
+    background: rgba(0, 143, 122, 0.1);
+    color: var(--color-shamrock);
 }
 
 /* ==================== Price Library — Category Tabs ==================== */
@@ -1727,28 +1844,33 @@
     flex-shrink: 0;
 }
 
-/* ==================== Automations Page ==================== */
+/* ==================== Sectioned Card System ==================== */
 
-.auto-grid {
+.card-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
     gap: var(--space-lg);
 }
 
-.auto-card {
+.card-grid--4 {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--space-md);
+}
+
+.card-sectioned {
     padding: 0 !important;
     overflow: hidden;
 }
 
-.auto-card-header {
+.card-header {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     padding: var(--space-lg);
     border-bottom: 1px solid var(--gray-100);
 }
 
-.auto-card-title {
+.card-title {
     display: flex;
     align-items: center;
     gap: var(--space-sm);
@@ -1756,30 +1878,54 @@
     min-width: 0;
 }
 
-.auto-card-title strong {
+.card-title strong {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.auto-card-body {
+.card-body {
     padding: var(--space-md) var(--space-lg);
     display: flex;
     flex-direction: column;
     gap: var(--space-xs);
 }
 
-.auto-card-row {
+.card-row {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
+    gap: var(--space-xs);
     font-size: 13px;
     color: var(--color-text-primary);
     padding: 2px 0;
 }
 
-.auto-card-label {
+.card-label {
     color: var(--color-text-secondary);
+}
+
+.copyable-field {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: color 0.15s ease;
+}
+
+.copyable-field:hover {
+    color: var(--color-shamrock);
+}
+
+.copy-hint {
+    opacity: 0;
+    flex-shrink: 0;
+    transition: opacity 0.15s ease;
+}
+
+.copyable-field:hover .copy-hint {
+    opacity: 1;
 }
 
 .auto-freq-badge {
@@ -1792,7 +1938,32 @@
     color: var(--color-shamrock);
 }
 
-.auto-card-actions {
+.fields-badge-wrapper {
+    position: relative;
+    cursor: default;
+}
+
+.fields-tooltip {
+    display: none;
+    position: fixed;
+    background: var(--color-white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    padding: var(--space-sm);
+    box-shadow: var(--shadow-lg);
+    z-index: 9999;
+    min-width: 160px;
+    max-width: 240px;
+    flex-wrap: wrap;
+    gap: 4px;
+    white-space: normal;
+}
+
+.fields-tooltip.visible {
+    display: flex;
+}
+
+.card-actions {
     display: flex;
     gap: var(--space-xs);
     padding: var(--space-md) var(--space-lg);
@@ -1800,8 +1971,8 @@
     flex-wrap: wrap;
 }
 
-.auto-card-actions .btn-secondary,
-.auto-card-actions .btn-primary {
+.card-actions .btn-secondary,
+.card-actions .btn-primary {
     display: inline-flex;
     align-items: center;
     gap: 4px;
@@ -1820,4 +1991,71 @@
 .doc-recurring-btn:hover {
     background: rgba(99, 102, 241, 0.1);
     color: #6366f1;
+}
+
+/* ==================== Import Modal ==================== */
+
+.import-col-select {
+    min-width: 180px;
+}
+
+#import-dropzone:hover {
+    border-color: var(--color-shamrock);
+    background: rgba(0, 143, 122, 0.04);
+}
+
+/* ==================== Bulk Selection ==================== */
+
+.bulk-selection-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-sm) var(--space-lg);
+    background: var(--color-shamrock-light, rgba(0, 143, 122, 0.06));
+    border: 1px solid rgba(0, 143, 122, 0.2);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-lg);
+    animation: slideDown 0.15s ease-out;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.bulk-checkbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--color-shamrock);
+}
+
+.btn-warning {
+    background: #d69e2e;
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.btn-warning:hover {
+    background: #b7791f;
+}
+
+.btn-danger {
+    background: var(--color-error, #e53e3e);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.btn-danger:hover {
+    background: #c53030;
 }

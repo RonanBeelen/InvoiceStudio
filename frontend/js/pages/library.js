@@ -2,8 +2,10 @@
  * Library page module
  * Extracted from library.html and library.js, adapted for dashboard
  */
+import { showConfirmDialog } from '/js/components/confirm-dialog.js';
 
 let templates = [];
+let showingArchived = false;
 
 // --- Persistent preview cache (localStorage) ---
 const PREVIEW_CACHE_PREFIX = 'tpl_preview_';
@@ -118,7 +120,7 @@ function extractFieldNames(template) {
             fields = pageSchema.map(field => field.name || 'unnamed');
         }
 
-        return [...new Set(fields)].slice(0, 5); // Max 5 fields displayed
+        return [...new Set(fields)];
     } catch (error) {
         console.error('Error extracting field names:', error);
         return [];
@@ -174,7 +176,7 @@ async function pdfToImageDataUrl(base64Pdf, desiredWidth = 400) {
  * Load inline preview for a single template card
  */
 async function loadInlinePreview(template) {
-    const previewArea = document.querySelector(`.template-card[data-id="${template.id}"] .template-preview`);
+    const previewArea = document.querySelector(`.card-sectioned[data-id="${template.id}"] .template-preview`);
     if (!previewArea) return;
 
     try {
@@ -236,9 +238,12 @@ async function loadInlinePreviews() {
  */
 function renderTemplateCard(template) {
     const fields = extractFieldNames(template);
-    const fieldsHtml = fields.length > 0
-        ? fields.map(field => `<span class="field-badge">${field}</span>`).join('')
-        : '<span class="field-badge">Geen velden</span>';
+    const visibleFields = fields.slice(0, 10);
+    const extraCount = fields.length - visibleFields.length;
+    const tooltipHtml = visibleFields.length > 0
+        ? visibleFields.map(field => `<span class="field-badge">${field}</span>`).join('')
+          + (extraCount > 0 ? `<span class="field-badge" style="color:var(--color-text-secondary);">+${extraCount} meer</span>` : '')
+        : '<span class="field-badge" style="color:var(--color-text-secondary);">Geen velden</span>';
 
     // Thumbnail, cached preview, or loading spinner
     let thumbnailHtml;
@@ -247,7 +252,6 @@ function renderTemplateCard(template) {
                  alt="Template preview"
                  class="template-thumbnail" />`;
     } else {
-        // Show loading spinner - will be replaced by loadInlinePreviews()
         thumbnailHtml = `<div class="template-placeholder" style="flex-direction:column;">
                 <div class="loader-pulse loader-pulse--mini">
                     <div class="loader-pulse__ring"></div>
@@ -260,33 +264,70 @@ function renderTemplateCard(template) {
     }
 
     return `
-        <div class="template-card" data-id="${template.id}">
+        <div class="card-sectioned dashboard-section" data-id="${template.id}">
             <div class="template-preview">
                 ${thumbnailHtml}
             </div>
-
-            <div class="template-title">${template.name}</div>
-            <div class="template-meta">
-                Gemaakt ${formatDate(template.created_at)}
-            </div>
-
-            <div class="template-fields">
-                <div class="template-fields-title">Velden:</div>
-                <div class="fields-list">
-                    ${fieldsHtml}
+            <div class="card-header" style="border-bottom: none; padding-bottom: 0;">
+                <div class="card-title">
+                    <i data-lucide="file-text" style="width: 18px; height: 18px; color: var(--color-shamrock);"></i>
+                    <strong>${template.name}</strong>
+                </div>
+                <div class="fields-badge-wrapper">
+                    <span class="auto-freq-badge">${fields.length} fields</span>
+                    <div class="fields-tooltip">
+                        ${tooltipHtml}
+                    </div>
                 </div>
             </div>
-
-            <div class="template-actions">
-                <button class="action-btn edit-btn" onclick="editTemplateFromLibrary('${template.id}')">
-                    <i data-lucide="edit"></i> Bewerken
+            <div class="card-body">
+                <div class="card-row">
+                    <span class="card-label">Created</span>
+                    <span>${formatDate(template.created_at)}</span>
+                </div>
+            </div>
+            <div class="card-actions">
+                <button class="btn-secondary" style="font-size: 12px; padding: 4px 12px;" onclick="editTemplateFromLibrary('${template.id}')">
+                    <i data-lucide="pencil" style="width: 14px; height: 14px;"></i> Edit
                 </button>
-                <button class="action-btn delete-btn" onclick="deleteTemplateFromLibrary('${template.id}', '${template.name}')">
-                    <i data-lucide="trash-2"></i> Verwijderen
+                ${showingArchived ? `
+                    <button class="btn-primary" style="font-size: 12px; padding: 4px 12px;" onclick="restoreTemplateFromLibrary('${template.id}')">
+                        <i data-lucide="archive-restore" style="width: 14px; height: 14px;"></i> Restore
+                    </button>
+                ` : `
+                    <button class="btn-secondary" style="font-size: 12px; padding: 4px 12px; color: #d69e2e;" onclick="archiveTemplateFromLibrary('${template.id}', '${template.name.replace(/'/g, "\\'")}')">
+                        <i data-lucide="archive" style="width: 14px; height: 14px;"></i>
+                    </button>
+                `}
+                <button class="btn-secondary" style="font-size: 12px; padding: 4px 12px; color: var(--color-error);" onclick="deleteTemplateFromLibrary('${template.id}', '${template.name.replace(/'/g, "\\'")}')">
+                    <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>
                 </button>
             </div>
         </div>
     `;
+}
+
+/**
+ * Attach fixed-position tooltip hover listeners to all field badges
+ */
+function attachFieldTooltipListeners() {
+    document.querySelectorAll('.fields-badge-wrapper').forEach(wrapper => {
+        const tooltip = wrapper.querySelector('.fields-tooltip');
+        if (!tooltip) return;
+
+        wrapper.addEventListener('mouseenter', () => {
+            const rect = wrapper.getBoundingClientRect();
+            tooltip.style.top = (rect.bottom + 6) + 'px';
+            // Align right edge with badge right edge, clamp to viewport
+            const left = Math.max(4, rect.right - tooltip.offsetWidth || rect.right - 200);
+            tooltip.style.left = left + 'px';
+            tooltip.classList.add('visible');
+        });
+
+        wrapper.addEventListener('mouseleave', () => {
+            tooltip.classList.remove('visible');
+        });
+    });
 }
 
 /**
@@ -322,6 +363,9 @@ function renderTemplates(containerId, emptyStateId, statsId) {
             lucide.createIcons();
         }
 
+        // Attach tooltip hover listeners
+        attachFieldTooltipListeners();
+
         // Load inline previews for templates without thumbnails
         loadInlinePreviews();
     }
@@ -338,25 +382,53 @@ window.editTemplateFromLibrary = function(templateId) {
  * Delete template with confirmation
  */
 window.deleteTemplateFromLibrary = async function(templateId, templateName) {
-    const confirmed = confirm(
-        `Weet je zeker dat je "${templateName}" wilt verwijderen?\n\nDit kan niet ongedaan worden gemaakt.`
-    );
-
+    const confirmed = await showConfirmDialog({
+        title: 'Template Verwijderen',
+        message: `"${templateName}" permanent verwijderen? Dit kan niet ongedaan worden gemaakt.`,
+        confirmLabel: 'Verwijderen',
+        variant: 'danger',
+    });
     if (!confirmed) return;
 
     try {
         await api.deleteTemplate(templateId);
         showNotification('Template verwijderd', 'success');
-
-        // Remove from local array and cache
         templates = templates.filter(t => t.id !== templateId);
         deletePersistedPreview(templateId);
-
-        // Re-render
         renderTemplates('templates-grid', 'empty-state', 'stats');
     } catch (error) {
         console.error('Failed to delete template:', error);
         showNotification('Fout bij verwijderen: ' + error.message, 'error');
+    }
+};
+
+window.archiveTemplateFromLibrary = async function(templateId, templateName) {
+    const confirmed = await showConfirmDialog({
+        title: 'Template Archiveren',
+        message: `"${templateName}" archiveren? Het wordt verborgen maar kan later hersteld worden.`,
+        confirmLabel: 'Archiveren',
+        variant: 'warning',
+    });
+    if (!confirmed) return;
+
+    try {
+        await api.archiveTemplate(templateId);
+        showNotification('Template gearchiveerd', 'success');
+        templates = templates.filter(t => t.id !== templateId);
+        renderTemplates('templates-grid', 'empty-state', 'stats');
+    } catch (error) {
+        showNotification('Fout bij archiveren: ' + error.message, 'error');
+    }
+};
+
+window.restoreTemplateFromLibrary = async function(templateId) {
+    try {
+        await api.restoreTemplate(templateId);
+        showNotification('Template hersteld', 'success');
+        templates = templates.filter(t => t.id !== templateId);
+        renderTemplates('templates-grid', 'empty-state', 'stats');
+    } catch (error) {
+        showNotification('Fout bij herstellen: ' + error.message, 'error');
     }
 };
 
@@ -365,19 +437,27 @@ window.deleteTemplateFromLibrary = async function(templateId, templateName) {
  */
 export async function initLibrary() {
     const html = `
-        <div style="padding: var(--space-lg); max-width: 1200px; margin: 0 auto;">
-            <div style="background: var(--color-white); border-radius: var(--radius-xl); padding: var(--space-xl); margin-bottom: var(--space-xl); box-shadow: var(--shadow-md); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-md);">
-                <h1 style="font-size: 32px; color: var(--color-text-primary); margin: 0; display: flex; align-items: center; gap: var(--space-md);">
-                    <i data-lucide="library"></i>
-                    Template Library
-                </h1>
-                <div style="display: flex; align-items: center; gap: var(--space-lg);">
+        <div style="padding: var(--space-lg); max-width: 1400px; margin: 0 auto;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-xl); flex-wrap: wrap; gap: var(--space-md);">
+                <div>
+                    <h1 style="display: flex; align-items: center; gap: var(--space-md); font-size: 32px; color: var(--color-dark-green); margin-bottom: var(--space-sm);">
+                        <i data-lucide="library"></i>
+                        Template Library
+                    </h1>
+                    <p style="color: var(--color-text-secondary);">
+                        Manage and create your invoice templates
+                    </p>
+                </div>
+                <div style="display: flex; align-items: center; gap: var(--space-md);">
                     <div id="stats" style="display: none; align-items: center; gap: var(--space-sm);">
                         <i data-lucide="file-text" style="width: 20px; height: 20px; color: var(--color-shamrock);"></i>
                         <span id="template-count" style="font-size: 16px; font-weight: var(--font-weight-semibold); color: var(--color-shamrock);">0</span>
                         <span style="font-size: 14px; color: var(--color-text-secondary);">Templates</span>
                     </div>
-                    <a href="#/designer" class="btn btn-primary">
+                    <button class="btn-secondary" id="toggle-archived-btn" style="display: flex; align-items: center; gap: var(--space-sm); padding: var(--space-md) var(--space-xl);">
+                        <i data-lucide="archive"></i> Archived
+                    </button>
+                    <a href="#/designer" class="btn-primary" style="display: flex; align-items: center; gap: var(--space-sm); padding: var(--space-md) var(--space-xl); text-decoration: none;">
                         <i data-lucide="sparkles"></i> Nieuwe Template
                     </a>
                 </div>
@@ -393,7 +473,7 @@ export async function initLibrary() {
                 <p>Templates laden...</p>
             </div>
 
-            <div id="templates-grid" style="display: none; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-xl);">
+            <div id="templates-grid" class="card-grid" style="display: none; margin-bottom: var(--space-xl);">
                 <!-- Templates will be inserted here -->
             </div>
 
@@ -412,9 +492,32 @@ export async function initLibrary() {
 
     router.render(html);
 
+    document.getElementById('toggle-archived-btn').addEventListener('click', async () => {
+        showingArchived = !showingArchived;
+        const btn = document.getElementById('toggle-archived-btn');
+        if (showingArchived) {
+            btn.classList.remove('btn-secondary');
+            btn.classList.add('btn-warning');
+            btn.innerHTML = '<i data-lucide="arrow-left"></i> Back to Active';
+        } else {
+            btn.classList.remove('btn-warning');
+            btn.classList.add('btn-secondary');
+            btn.innerHTML = '<i data-lucide="archive"></i> Archived';
+        }
+        lucide.createIcons();
+        try {
+            templates = await api.getTemplates(showingArchived);
+            const loading = document.getElementById('loading-library');
+            if (loading) loading.style.display = 'none';
+            renderTemplates('templates-grid', 'empty-state', 'stats');
+        } catch (error) {
+            showNotification('Fout bij laden: ' + error.message, 'error');
+        }
+    });
+
     // Load templates
     try {
-        templates = await api.getTemplates();
+        templates = await api.getTemplates(showingArchived);
         console.log(`[Library] Loaded ${templates.length} templates`);
 
         // Hide loading

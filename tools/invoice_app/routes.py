@@ -1,8 +1,8 @@
 """
 API routes for template management and PDF generation
 """
-from fastapi import APIRouter, HTTPException, status, Depends
-from typing import List
+from fastapi import APIRouter, HTTPException, status, Depends, Query
+from typing import List, Optional
 from uuid import UUID
 from datetime import datetime
 
@@ -19,17 +19,57 @@ from .auth_middleware import get_current_user
 router = APIRouter(prefix="/api")
 
 @router.get("/templates", response_model=List[TemplateResponse])
-async def list_templates(user: dict = Depends(get_current_user)):
+async def list_templates(archived: Optional[bool] = Query(False), user: dict = Depends(get_current_user)):
     """List all templates for the current user"""
     try:
         user_id = user["sub"]
-        templates = await supabase.select("templates", filters={"user_id": user_id}, order_by=("created_at", True))
+        templates = await supabase.select("templates", filters={"user_id": user_id, "is_archived": archived}, order_by=("created_at", True))
         return templates
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to fetch templates: {str(e)}"
         )
+
+@router.post("/templates/archive/{template_id}")
+async def archive_template(template_id: UUID, user: dict = Depends(get_current_user)):
+    """Archive a template (set is_archived=true)."""
+    try:
+        user_id = user["sub"]
+        rows = await supabase.select("templates", columns="id", filters={"id": str(template_id), "user_id": user_id})
+        if not rows:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Template not found")
+        await supabase.update(
+            "templates",
+            {"is_archived": True, "updated_at": datetime.utcnow().isoformat()},
+            {"id": str(template_id), "user_id": user_id}
+        )
+        return {"message": "Template archived", "id": str(template_id)}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to archive template: {str(e)}")
+
+
+@router.post("/templates/restore/{template_id}")
+async def restore_template(template_id: UUID, user: dict = Depends(get_current_user)):
+    """Restore an archived template."""
+    try:
+        user_id = user["sub"]
+        rows = await supabase.select("templates", columns="id", filters={"id": str(template_id), "user_id": user_id})
+        if not rows:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Template not found")
+        await supabase.update(
+            "templates",
+            {"is_archived": False, "updated_at": datetime.utcnow().isoformat()},
+            {"id": str(template_id), "user_id": user_id}
+        )
+        return {"message": "Template restored", "id": str(template_id)}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to restore template: {str(e)}")
+
 
 @router.get("/templates/{template_id}", response_model=TemplateResponse)
 async def get_template(template_id: UUID, user: dict = Depends(get_current_user)):

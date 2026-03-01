@@ -84,9 +84,12 @@ NODE_SERVICE_PORT = os.getenv("NODE_SERVICE_PORT", "3001")
 NODE_SERVICE_URL = f"http://{NODE_SERVICE_HOST}:{NODE_SERVICE_PORT}"
 
 @app.get("/")
-async def root():
-    """Root endpoint - redirect to dashboard"""
-    return RedirectResponse(url="/dashboard")
+async def serve_index():
+    """Serve the landing page"""
+    file_path = os.path.join(frontend_path, "index.html")
+    if os.path.exists(file_path):
+        return FileResponse(file_path)
+    return RedirectResponse(url="/login")
 
 @app.get("/health", response_model=HealthResponse)
 async def health_check():
@@ -139,6 +142,7 @@ if os.path.exists(frontend_path):
         app.mount("/templates", StaticFiles(directory=templates_path), name="templates")
 
 @app.get("/login")
+@app.get("/login.html")
 async def serve_login():
     """Serve the login page"""
     file_path = os.path.join(frontend_path, "login.html")

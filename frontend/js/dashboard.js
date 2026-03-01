@@ -13,16 +13,17 @@
 
         // Display user info in sidebar
         const userEmailEl = document.getElementById('user-email');
-        const userInfoEl = document.getElementById('user-info');
+        const accountTrigger = document.getElementById('account-trigger');
         if (userEmailEl && session.user) {
             userEmailEl.textContent = session.user.email;
-            userInfoEl.style.display = 'flex';
+            accountTrigger.style.display = 'flex';
         }
 
-        // Logout button
-        document.getElementById('logout-btn')?.addEventListener('click', () => {
-            auth.signOut();
-        });
+        // Account popover
+        setupAccountPopover();
+
+        // Load logo into avatar
+        loadAccountAvatar();
     } catch (e) {
         console.error('Auth check failed:', e);
         window.location.href = '/login';
@@ -622,6 +623,90 @@ function setupMobileMenu() {
     // Close sidebar if window resizes past mobile breakpoint
     window.addEventListener('resize', () => {
         if (window.innerWidth > 768) closeMenu();
+    });
+}
+
+// ========== Account Avatar ==========
+
+async function loadAccountAvatar() {
+    try {
+        const settings = await api.getSettings();
+        if (settings && settings.logo_base64) {
+            const avatarEl = document.getElementById('user-avatar');
+            if (avatarEl) {
+                avatarEl.innerHTML = `<img src="${settings.logo_base64}" alt="Logo" class="user-avatar-img">`;
+            }
+        }
+    } catch (e) {
+        // Silently fail — keep default icon
+    }
+}
+
+// ========== Account Popover ==========
+
+function setupAccountPopover() {
+    const trigger = document.getElementById('account-trigger');
+    if (!trigger) return;
+
+    trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+
+        // Toggle existing popover
+        let existing = document.getElementById('account-popover');
+        if (existing) {
+            existing.remove();
+            trigger.classList.remove('open');
+            return;
+        }
+
+        trigger.classList.add('open');
+
+        const popover = document.createElement('div');
+        popover.className = 'account-popover';
+        popover.id = 'account-popover';
+        popover.innerHTML = `
+            <div class="account-popover-menu">
+                <a href="#/settings" class="account-popover-item" data-action="settings">
+                    <i data-lucide="settings"></i>
+                    <span>Settings</span>
+                </a>
+                <a href="mailto:support@invoicestudio.cloud" class="account-popover-item" data-action="help">
+                    <i data-lucide="life-buoy"></i>
+                    <span>Help & Support</span>
+                </a>
+                <div class="account-popover-divider"></div>
+                <button class="account-popover-item logout-item" data-action="logout">
+                    <i data-lucide="log-out"></i>
+                    <span>Uitloggen</span>
+                </button>
+            </div>
+        `;
+
+        // Insert into sidebar-footer (relative positioning context)
+        trigger.parentElement.style.position = 'relative';
+        trigger.parentElement.appendChild(popover);
+        lucide.createIcons({ nodes: [popover] });
+
+        // Settings click
+        popover.querySelector('[data-action="settings"]').addEventListener('click', () => {
+            popover.remove();
+            trigger.classList.remove('open');
+        });
+
+        // Logout click
+        popover.querySelector('[data-action="logout"]').addEventListener('click', () => {
+            auth.signOut();
+        });
+
+        // Close on outside click
+        const closePopover = (ev) => {
+            if (!popover.contains(ev.target) && !trigger.contains(ev.target)) {
+                popover.remove();
+                trigger.classList.remove('open');
+                document.removeEventListener('click', closePopover);
+            }
+        };
+        setTimeout(() => document.addEventListener('click', closePopover), 0);
     });
 }
 

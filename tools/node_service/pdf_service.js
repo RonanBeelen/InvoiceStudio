@@ -235,7 +235,7 @@ app.get('/info', (req, res) => {
       info: 'GET /info'
     },
     dependencies: {
-      pdfme: require('@pdfme/generator/package.json').version,
+      pdfme: '4.5.2',
       express: require('express/package.json').version
     }
   });

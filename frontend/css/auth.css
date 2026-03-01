@@ -145,8 +145,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--space-sm);
-    padding: 11px var(--space-lg);
+    gap: 6px;
+    padding: 9px 19px;
     border: 1.5px solid var(--gray-200);
     border-radius: var(--radius-md);
     background: var(--gray-50);
@@ -183,15 +183,6 @@ body {
     display: flex;
     align-items: center;
     gap: var(--space-xs);
-}
-
-.coming-soon-badge {
-    font-size: 10px;
-    font-weight: var(--font-weight-medium);
-    color: var(--color-text-secondary);
-    background: var(--gray-200);
-    padding: 2px 6px;
-    border-radius: 10px;
 }
 
 /* Divider */
@@ -275,12 +266,12 @@ body {
 /* Submit button */
 .auth-submit {
     width: 100%;
-    padding: 13px var(--space-md);
+    padding: 10px 13px;
     margin-top: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--space-sm);
+    gap: 6px;
     background: var(--color-shamrock);
     color: var(--color-white);
     border: none;

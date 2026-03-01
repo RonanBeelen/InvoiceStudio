@@ -72,18 +72,6 @@ class AuthManager {
         return data;
     }
 
-    /** Apple OAuth */
-    async signInWithApple() {
-        const { data, error } = await supabaseClient.auth.signInWithOAuth({
-            provider: 'apple',
-            options: {
-                redirectTo: `${window.location.origin}/dashboard`,
-            },
-        });
-        if (error) throw error;
-        return data;
-    }
-
     /** Send password reset email */
     async resetPassword(email) {
         const { data, error } = await supabaseClient.auth.resetPasswordForEmail(email, {
@@ -260,12 +248,6 @@ function initLoginPage() {
     document.getElementById('google-login')?.addEventListener('click', () => {
         auth.signInWithGoogle();
     });
-
-    // Apple is disabled for now
-    const appleBtn = document.getElementById('apple-login');
-    if (appleBtn) {
-        appleBtn.disabled = true;
-    }
 
     // --- Check if already logged in ---
     // Use getUser() instead of getSession() to verify the token is actually valid.

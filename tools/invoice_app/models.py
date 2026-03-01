@@ -119,6 +119,31 @@ class PriceItemResponse(BaseModel):
         from_attributes = True
 
 
+class PriceItemBulkCreate(BaseModel):
+    """Model for bulk creating price items from spreadsheet import"""
+    items: List[PriceItemCreate] = Field(..., min_length=1, max_length=500)
+
+
+# ==================== Customers ====================
+
+class CustomerImportItem(BaseModel):
+    """Single customer row from an import operation"""
+    name: str = Field(..., min_length=1, max_length=255)
+    company_name: Optional[str] = Field(None, max_length=255)
+    address: Optional[str] = Field(None, max_length=500)
+    postal_code: Optional[str] = Field(None, max_length=20)
+    city: Optional[str] = Field(None, max_length=100)
+    country: Optional[str] = Field(None, max_length=100)
+    email: Optional[str] = Field(None, max_length=255)
+    phone: Optional[str] = Field(None, max_length=50)
+    tax_id: Optional[str] = Field(None, max_length=100)
+    notes: Optional[str] = Field(None, max_length=2000)
+
+class CustomerBulkCreate(BaseModel):
+    """Model for bulk creating customers from import"""
+    customers: List[CustomerImportItem] = Field(..., min_length=1, max_length=500)
+
+
 # ==================== Activity Log ====================
 
 class ActivityLogEntry(BaseModel):

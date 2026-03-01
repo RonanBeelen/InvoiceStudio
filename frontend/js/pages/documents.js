@@ -3,8 +3,10 @@
  */
 import { openSendModal } from '/js/components/send-modal.js';
 import { openActivityPanel } from '/js/components/activity-panel.js';
+import { showConfirmDialog } from '/js/components/confirm-dialog.js';
 
 let currentFilters = { type: '', status: '' };
+let showingArchived = false;
 
 function showNotification(message, type = 'success') {
     const existing = document.querySelector('.settings-notification');
@@ -63,9 +65,14 @@ export async function initDocuments() {
                         Overview of all invoices and quotes
                     </p>
                 </div>
-                <a href="#/new-document" class="btn-primary" style="display: flex; align-items: center; gap: var(--space-sm); padding: var(--space-md) var(--space-xl); text-decoration: none;">
-                    <i data-lucide="plus"></i> New Document
-                </a>
+                <div style="display: flex; gap: var(--space-md);">
+                    <button class="btn-secondary" id="toggle-archived-btn" style="display: flex; align-items: center; gap: var(--space-sm); padding: var(--space-md) var(--space-xl);">
+                        <i data-lucide="archive"></i> Archived
+                    </button>
+                    <a href="#/new-document" class="btn-primary" style="display: flex; align-items: center; gap: var(--space-sm); padding: var(--space-md) var(--space-xl); text-decoration: none;">
+                        <i data-lucide="plus"></i> New Document
+                    </a>
+                </div>
             </div>
 
             <!-- Filters -->
@@ -144,6 +151,22 @@ export async function initDocuments() {
         currentFilters.status = e.target.value;
         loadDocuments();
     });
+
+    document.getElementById('toggle-archived-btn').addEventListener('click', () => {
+        showingArchived = !showingArchived;
+        const btn = document.getElementById('toggle-archived-btn');
+        if (showingArchived) {
+            btn.classList.remove('btn-secondary');
+            btn.classList.add('btn-warning');
+            btn.innerHTML = '<i data-lucide="arrow-left"></i> Back to Active';
+        } else {
+            btn.classList.remove('btn-warning');
+            btn.classList.add('btn-secondary');
+            btn.innerHTML = '<i data-lucide="archive"></i> Archived';
+        }
+        lucide.createIcons();
+        loadDocuments();
+    });
 }
 
 async function loadDocuments() {
@@ -156,7 +179,7 @@ async function loadDocuments() {
     empty.style.display = 'none';
 
     try {
-        const filters = {};
+        const filters = { archived: showingArchived };
         if (currentFilters.type) filters.type = currentFilters.type;
         if (currentFilters.status) filters.status = currentFilters.status;
 
@@ -223,6 +246,15 @@ async function loadDocuments() {
                         <button class="doc-action-btn doc-activity-btn" data-id="${doc.id}" data-number="${escapeHtml(doc.document_number)}" title="Activity">
                             <i data-lucide="clock" style="width: 16px; height: 16px;"></i>
                         </button>
+                        ${showingArchived ? `
+                            <button class="doc-action-btn doc-restore-btn" data-id="${doc.id}" title="Restore">
+                                <i data-lucide="archive-restore" style="width: 16px; height: 16px;"></i>
+                            </button>
+                        ` : `
+                            <button class="doc-action-btn doc-archive-btn" data-id="${doc.id}" data-number="${escapeHtml(doc.document_number)}" title="Archive">
+                                <i data-lucide="archive" style="width: 16px; height: 16px;"></i>
+                            </button>
+                        `}
                         <button class="doc-action-btn doc-delete-btn" data-id="${doc.id}" data-number="${escapeHtml(doc.document_number)}" title="Delete">
                             <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
                         </button>
@@ -296,13 +328,54 @@ async function loadDocuments() {
             btn.addEventListener('click', async () => {
                 const docId = btn.dataset.id;
                 const docNum = btn.dataset.number;
-                if (!confirm(`Delete document ${docNum}?`)) return;
+                const confirmed = await showConfirmDialog({
+                    title: 'Delete Document',
+                    message: `Permanently delete document ${docNum}? This action cannot be undone.`,
+                    confirmLabel: 'Delete',
+                    variant: 'danger',
+                });
+                if (!confirmed) return;
                 try {
                     await api.deleteDocument(docId);
                     showNotification('Document deleted');
                     await loadDocuments();
                 } catch (error) {
                     showNotification('Failed to delete document', 'error');
+                }
+            });
+        });
+
+        // Archive handlers
+        tbody.querySelectorAll('.doc-archive-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const docId = btn.dataset.id;
+                const docNum = btn.dataset.number;
+                const confirmed = await showConfirmDialog({
+                    title: 'Archive Document',
+                    message: `Archive document ${docNum}? It will be hidden but can be restored later.`,
+                    confirmLabel: 'Archive',
+                    variant: 'warning',
+                });
+                if (!confirmed) return;
+                try {
+                    await api.archiveDocument(docId);
+                    showNotification('Document archived');
+                    await loadDocuments();
+                } catch (error) {
+                    showNotification('Failed to archive document', 'error');
+                }
+            });
+        });
+
+        // Restore handlers
+        tbody.querySelectorAll('.doc-restore-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                try {
+                    await api.restoreDocument(btn.dataset.id);
+                    showNotification('Document restored');
+                    await loadDocuments();
+                } catch (error) {
+                    showNotification('Failed to restore document', 'error');
                 }
             });
         });

@@ -44,19 +44,76 @@ def _calculate_next_run(frequency: str, day_of_month: int = None,
 
 
 @router.get("")
-async def list_automations(user: dict = Depends(get_current_user)):
+async def list_automations(archived: Optional[bool] = Query(False), user: dict = Depends(get_current_user)):
     """List all recurring rules for the current user."""
     try:
         user_id = user["sub"]
         rules = await supabase.select(
             "recurring_rules",
-            filters={"user_id": user_id},
+            filters={"user_id": user_id, "is_archived": archived},
             order_by=("created_at", True)
         )
+
+        # Enrich with source document info
+        source_ids = list({r["source_document_id"] for r in rules if r.get("source_document_id")})
+        if source_ids:
+            or_filter = "(" + ",".join(f"id.eq.{sid}" for sid in source_ids) + ")"
+            docs = await supabase.select_or(
+                "documents",
+                or_filters=or_filter,
+                columns="id,document_number,customer_name",
+                filters={"user_id": user_id}
+            )
+            doc_map = {d["id"]: d for d in docs}
+            for rule in rules:
+                doc = doc_map.get(rule.get("source_document_id"))
+                if doc:
+                    rule["source_document_number"] = doc.get("document_number")
+
         return rules
     except Exception as e:
         print(f"[Automations] Error listing rules: {e}")
         raise HTTPException(500, f"Failed to list automations: {str(e)}")
+
+
+@router.post("/archive/{rule_id}")
+async def archive_automation(rule_id: str, user: dict = Depends(get_current_user)):
+    """Archive an automation (set is_archived=true, is_active=false)."""
+    try:
+        user_id = user["sub"]
+        rows = await supabase.select("recurring_rules", columns="id,name", filters={"id": rule_id, "user_id": user_id})
+        if not rows:
+            raise HTTPException(404, "Automation not found")
+        await supabase.update(
+            "recurring_rules",
+            {"is_archived": True, "is_active": False, "updated_at": datetime.now(timezone.utc).isoformat()},
+            {"id": rule_id, "user_id": user_id}
+        )
+        return {"message": "Automation archived", "id": rule_id}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(500, f"Failed to archive automation: {str(e)}")
+
+
+@router.post("/restore/{rule_id}")
+async def restore_automation(rule_id: str, user: dict = Depends(get_current_user)):
+    """Restore an archived automation (leaves is_active=false, user must resume manually)."""
+    try:
+        user_id = user["sub"]
+        rows = await supabase.select("recurring_rules", columns="id", filters={"id": rule_id, "user_id": user_id})
+        if not rows:
+            raise HTTPException(404, "Automation not found")
+        await supabase.update(
+            "recurring_rules",
+            {"is_archived": False, "updated_at": datetime.now(timezone.utc).isoformat()},
+            {"id": rule_id, "user_id": user_id}
+        )
+        return {"message": "Automation restored", "id": rule_id}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(500, f"Failed to restore automation: {str(e)}")
 
 
 @router.get("/{rule_id}")
@@ -130,6 +187,7 @@ async def create_automation(data: dict, user: dict = Depends(get_current_user)):
             "day_of_week": day_of_week,
             "auto_send": data.get("auto_send", False),
             "is_active": True,
+            "is_archived": False,
             "next_run_at": next_run.isoformat(),
             "end_date": data.get("end_date"),
             "max_occurrences": data.get("max_occurrences"),

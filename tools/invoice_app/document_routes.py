@@ -340,17 +340,64 @@ async def create_document(doc_data: dict, user: dict = Depends(get_current_user)
         )
 
 
+@router.post("/archive/{document_id}")
+async def archive_document(document_id: str, user: dict = Depends(get_current_user)):
+    """Archive a document (set is_archived=true)."""
+    try:
+        user_id = user["sub"]
+        rows = await supabase.select("documents", columns="id,document_number", filters={"id": document_id, "user_id": user_id})
+        if not rows:
+            raise HTTPException(404, "Document not found")
+        await supabase.update(
+            "documents",
+            {"is_archived": True},
+            {"id": document_id, "user_id": user_id}
+        )
+        await _log_activity(
+            user_id=user_id, document_id=document_id,
+            entity_type="document", entity_id=document_id,
+            action="archived",
+            detail={"document_number": rows[0].get("document_number")}
+        )
+        return {"message": "Document archived", "id": document_id}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(500, f"Failed to archive document: {str(e)}")
+
+
+@router.post("/restore/{document_id}")
+async def restore_document(document_id: str, user: dict = Depends(get_current_user)):
+    """Restore an archived document."""
+    try:
+        user_id = user["sub"]
+        rows = await supabase.select("documents", columns="id", filters={"id": document_id, "user_id": user_id})
+        if not rows:
+            raise HTTPException(404, "Document not found")
+        await supabase.update(
+            "documents",
+            {"is_archived": False},
+            {"id": document_id, "user_id": user_id}
+        )
+        return {"message": "Document restored", "id": document_id}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(500, f"Failed to restore document: {str(e)}")
+
+
 @router.get("")
 async def list_documents(
     type: Optional[str] = Query(None),
     doc_status: Optional[str] = Query(None, alias="status"),
     customer_id: Optional[str] = Query(None),
+    archived: Optional[bool] = Query(False),
     user: dict = Depends(get_current_user),
 ):
     """List all documents with optional filters for the current user."""
     try:
         user_id = user["sub"]
-        filters = {"user_id": user_id}
+        filters = {"user_id": user_id, "is_archived": archived}
         if type:
             filters["document_type"] = type
         if doc_status:

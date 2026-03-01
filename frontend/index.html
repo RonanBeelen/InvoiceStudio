@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Studio – Professionele facturen in een handomdraai</title>
+    <meta name="description" content="Maak, verstuur en beheer al je facturen op één plek. Met slimme templates, automatische berekeningen en directe PDF-export bespaar je tijd en hou je overzicht.">
+    <link rel="icon" type="image/png" href="/PNG/Icon Invoice Studio.png">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/landing.css">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body>
+
+    <!-- ==================== Navigation ==================== -->
+    <header>
+        <nav class="nav">
+            <div class="nav-inner">
+                <a href="/">
+                    <img src="/PNG/Logo Invoice Studio.png" alt="Invoice Studio" class="nav-logo">
+                </a>
+
+                <ul class="nav-links">
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#hoe-het-werkt">Hoe het werkt</a></li>
+                </ul>
+
+                <div class="nav-actions">
+                    <a href="/login.html" class="btn-ghost">
+                        <span class="nav-label-desktop">Inloggen</span>
+                        <span class="nav-label-mobile">Login</span>
+                    </a>
+                    <a href="/login.html" class="btn-primary nav-btn-desktop">
+                        Gratis starten
+                        <i data-lucide="arrow-right" style="width:14px;height:14px;"></i>
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- ==================== Hero ==================== -->
+    <section class="hero">
+        <div class="hero-inner">
+            <!-- Left: content -->
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <span class="hero-badge-dot"></span>
+                    Nieuw: automatisch herhalen van facturen
+                </div>
+
+                <h1 class="hero-headline">
+                    Professionele facturen<br>
+                    <span>in een handomdraai</span>
+                </h1>
+
+                <p class="hero-sub">
+                    Maak, verstuur en beheer al je facturen op één plek. Met slimme templates en automatische berekeningen bespaar je tijd en hou je overzicht.
+                </p>
+
+                <div class="hero-cta">
+                    <div class="hero-cta-row">
+                        <a href="/login.html" class="btn-primary large">
+                            Start nu gratis
+                            <i data-lucide="arrow-right" style="width:18px;height:18px;"></i>
+                        </a>
+                    </div>
+                    <p class="hero-cta-login">
+                        Al een account? <a href="/login.html">Inloggen</a>
+                    </p>
+                    <p class="hero-cta-note">
+                        <i data-lucide="shield-check" style="width:14px;height:14px;color:var(--color-shamrock);"></i>
+                        Geen creditcard vereist &middot; Direct aan de slag
+                    </p>
+                </div>
+            </div>
+
+            <!-- Right: mock invoice card -->
+            <div class="hero-visual">
+                <div style="position:relative; padding: 24px 24px 24px 24px;">
+                    <!-- Floating badge: sent -->
+                    <div class="invoice-float-badge sent">
+                        <div class="invoice-float-icon green">
+                            <i data-lucide="send" style="width:12px;height:12px;"></i>
+                        </div>
+                        Verstuurd per e-mail
+                    </div>
+
+                    <!-- Invoice card -->
+                    <div class="invoice-card">
+                        <div class="invoice-card-header">
+                            <div class="invoice-card-logo">
+                                <div class="invoice-card-logo-bar"></div>
+                                <div class="invoice-card-logo-bar thin" style="margin-top:4px;"></div>
+                            </div>
+                            <div class="invoice-card-badge">Betaald</div>
+                        </div>
+
+                        <div class="invoice-card-title">Factuur #2025-042</div>
+                        <div class="invoice-card-meta">Klantnaam B.V. &middot; 15 jan 2025</div>
+
+                        <div class="invoice-card-rows">
+                            <div class="invoice-row">
+                                <span class="invoice-row-label">Webdesign</span>
+                                <span class="invoice-row-amount">€ 1.200,00</span>
+                            </div>
+                            <div class="invoice-row">
+                                <span class="invoice-row-label">Hosting (jaarlijks)</span>
+                                <span class="invoice-row-amount">€ 240,00</span>
+                            </div>
+                            <div class="invoice-row">
+                                <span class="invoice-row-label">BTW 21%</span>
+                                <span class="invoice-row-amount">€ 302,40</span>
+                            </div>
+                        </div>
+
+                        <div class="invoice-card-total">
+                            <span class="invoice-total-label">Totaal incl. BTW</span>
+                            <span class="invoice-total-amount">€ 1.742,40</span>
+                        </div>
+
+                        <div class="invoice-card-actions">
+                            <div class="invoice-action-btn primary">PDF downloaden</div>
+                            <div class="invoice-action-btn secondary">Versturen</div>
+                        </div>
+                    </div>
+
+                    <!-- Floating badge: PDF -->
+                    <div class="invoice-float-badge pdf">
+                        <div class="invoice-float-icon gray">
+                            <i data-lucide="file-text" style="width:12px;height:12px;"></i>
+                        </div>
+                        PDF gegenereerd
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== Stats bar ==================== -->
+    <div class="stats-bar">
+        <div class="stats-bar-inner">
+            <div class="stat-item">
+                <div class="stat-icon">
+                    <i data-lucide="zap"></i>
+                </div>
+                <div class="stat-text">
+                    <span class="stat-value">PDF in seconden</span>
+                    <span class="stat-label">Directe download, altijd perfect opgemaakt</span>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon">
+                    <i data-lucide="mail"></i>
+                </div>
+                <div class="stat-text">
+                    <span class="stat-value">Verstuur per e-mail</span>
+                    <span class="stat-label">Met branded template en PDF-bijlage</span>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon">
+                    <i data-lucide="repeat"></i>
+                </div>
+                <div class="stat-text">
+                    <span class="stat-value">Automatische facturen</span>
+                    <span class="stat-label">Stel herhaling in en vergeet het</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== Features ==================== -->
+    <section class="section features" id="features">
+        <div class="section-inner">
+            <div class="section-header">
+                <p class="section-label">Alles wat je nodig hebt</p>
+                <h2 class="section-title">Eén platform voor al je documenten</h2>
+                <p class="section-sub">Van offerte tot factuur – Invoice Studio heeft alle tools die je nodig hebt om professioneel te werken.</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i data-lucide="layout-template"></i>
+                    </div>
+                    <h3 class="feature-title">Slimme templates</h3>
+                    <p class="feature-desc">Ontwerp herbruikbare templates voor facturen en offertes. Eenmalig instellen, altijd consistent resultaat.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i data-lucide="file-text"></i>
+                    </div>
+                    <h3 class="feature-title">PDF in één klik</h3>
+                    <p class="feature-desc">Genereer direct een professionele PDF van elk document. Klaar om te downloaden of te versturen.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i data-lucide="users"></i>
+                    </div>
+                    <h3 class="feature-title">Klantenbeheer</h3>
+                    <p class="feature-desc">Sla klantgegevens op en hergebruik ze. Naam, adres, BTW-nummer – alles automatisch ingevuld.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i data-lucide="tag"></i>
+                    </div>
+                    <h3 class="feature-title">Prijsbibliotheek</h3>
+                    <p class="feature-desc">Beheer je diensten en producten met vaste prijzen, BTW-percentages en eenheden. Voeg ze met één klik toe.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i data-lucide="mail"></i>
+                    </div>
+                    <h3 class="feature-title">Versturen per e-mail</h3>
+                    <p class="feature-desc">Stuur facturen direct via Invoice Studio. Met een professioneel branded template en de PDF als bijlage.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i data-lucide="repeat"></i>
+                    </div>
+                    <h3 class="feature-title">Herhaalbare facturen</h3>
+                    <p class="feature-desc">Stel automatische herhaling in voor terugkerende klanten. Wekelijks, maandelijks of op maat – jij bepaalt het ritme.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== How it works ==================== -->
+    <section class="section how-it-works" id="hoe-het-werkt">
+        <div class="section-inner">
+            <div class="section-header">
+                <p class="section-label">Hoe het werkt</p>
+                <h2 class="section-title">In drie stappen naar een professionele factuur</h2>
+                <p class="section-sub">Invoice Studio is ontworpen om zo weinig mogelijk tijd van je te vragen, zodat jij je kunt focussen op je werk.</p>
+            </div>
+
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3 class="step-title">Maak een template op maat</h3>
+                        <p class="step-desc">Stel eenmalig een factuurtemplate in met jouw bedrijfsnaam, logo en huisstijl. Opslaan en klaar.</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3 class="step-title">Vul klant- en factuurgegevens in</h3>
+                        <p class="step-desc">Kies een klant uit je adresboek, selecteer diensten uit je prijsbibliotheek en laat Invoice Studio de BTW berekenen.</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3 class="step-title">Download of verstuur direct</h3>
+                        <p class="step-desc">Exporteer als PDF of verstuur de factuur direct per e-mail vanuit Invoice Studio. Tracking inbegrepen.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== Final CTA ==================== -->
+    <section class="section cta-section">
+        <div class="cta-inner">
+            <h2 class="cta-title">Klaar om te beginnen?</h2>
+            <p class="cta-sub">Maak gratis een account aan en stuur je eerste factuur vandaag nog. Geen creditcard, geen gedoe.</p>
+            <a href="/login.html" class="btn-primary large">
+                Gratis account aanmaken
+                <i data-lucide="arrow-right" style="width:18px;height:18px;"></i>
+            </a>
+            <p class="cta-note">Al een account? <a href="/login.html" style="color:rgba(255,255,255,0.5);">Inloggen</a></p>
+        </div>
+    </section>
+
+    <!-- ==================== Footer ==================== -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <img src="/PNG/Logo Invoice Studio.png" alt="Invoice Studio" class="footer-logo">
+                <span class="footer-tagline">Professionele facturen in een handomdraai.</span>
+            </div>
+
+            <ul class="footer-links">
+                <li><a href="#">Privacybeleid</a></li>
+                <li><a href="#">Algemene voorwaarden</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+
+            <span class="footer-copy">© 2025 InvoiceStudio.cloud</span>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

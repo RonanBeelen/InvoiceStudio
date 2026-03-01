@@ -153,8 +153,8 @@ p {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: var(--space-sm);
-    padding: var(--space-sm) var(--space-lg);
+    gap: 6px;
+    padding: 6px 19px;
     border: none;
     border-radius: var(--radius-md);
     font-size: 14px;
@@ -163,6 +163,13 @@ p {
     cursor: pointer;
     transition: all var(--transition-fast);
     text-decoration: none;
+}
+
+.btn svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    vertical-align: middle;
 }
 
 .btn:disabled {
@@ -215,13 +222,13 @@ p {
 .back-btn {
     background: rgba(255, 255, 255, 0.1);
     color: var(--color-white);
-    padding: var(--space-sm) var(--space-md);
+    padding: 6px 13px;
     border-radius: var(--radius-md);
     font-size: 14px;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
-    gap: var(--space-xs);
+    gap: 3px;
     transition: background var(--transition-fast);
 }
 
